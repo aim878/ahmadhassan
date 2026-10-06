@@ -16,7 +16,7 @@ Requires: pip install markdown
 import html
 import math
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
 from pathlib import Path
 
@@ -27,6 +27,7 @@ SITE = "https://www.ahmadhassan.pro"
 AUTHOR = "Ahmad Hassan"
 OG_IMAGE = f"{SITE}/images/og-image.jpg"
 esc = html.escape
+TZ = timezone(timedelta(hours=5))  # Pakistan time; schema.org dates need a timezone
 
 
 def parse(path):
@@ -45,7 +46,10 @@ def parse(path):
     body = m.group(2)
     meta["html"] = markdown.markdown(body, extensions=["fenced_code", "tables", "sane_lists"])
     meta["minutes"] = max(1, math.ceil(len(re.findall(r"\w+", body)) / 220))
-    meta["dt"] = datetime.strptime(meta["date"], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    meta["dt"] = datetime.strptime(meta["date"], "%Y-%m-%d").replace(hour=9, tzinfo=TZ)
+    meta["iso"] = meta["dt"].isoformat()
+    upd = meta.get("updated")
+    meta["iso_updated"] = datetime.strptime(upd, "%Y-%m-%d").replace(hour=9, tzinfo=TZ).isoformat() if upd else meta["iso"]
     meta["pretty"] = meta["dt"].strftime("%b %-d, %Y")
     meta["url"] = f"{SITE}/blog/{meta['slug']}/"
     return meta
@@ -142,7 +146,7 @@ def render_post(p, prev, nxt):
     post = {
         "@type": "BlogPosting",
         "headline": p["title"], "description": p["description"], "image": OG_IMAGE,
-        "datePublished": p["date"], "dateModified": p.get("updated", p["date"]),
+        "datePublished": p["iso"], "dateModified": p["iso_updated"],
         "author": PERSON, "publisher": PERSON,
         "mainEntityOfPage": p["url"], "articleSection": p["category"],
         "isPartOf": {"@id": f"{SITE}/#website"},
@@ -186,7 +190,7 @@ def render_index(posts):
     desc = "Articles by Ahmad Hassan on AI/RAG systems, deployment tooling, and full-stack performance engineering."
     ld = {"@context": "https://schema.org", "@type": "Blog", "name": "Ahmad Hassan — Blog", "url": url,
           "author": PERSON,
-          "blogPost": [{"@type": "BlogPosting", "headline": p["title"], "url": p["url"], "datePublished": p["date"]} for p in posts]}
+          "blogPost": [{"@type": "BlogPosting", "headline": p["title"], "url": p["url"], "datePublished": p["iso"]} for p in posts]}
     cards = "\n".join(
         f"""    <a class="card" href="/blog/{p['slug']}/">
       <span class="cat">{esc(p['category'])}</span>
