@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>try{var t=localStorage.getItem('ah-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<title>Building a Production RAG Chatbot with OpenAI, Chroma, and Claude | Ahmad Hassan</title>
+<meta name="description" content="How I built a knowledge-base chatbot for REConnect — from chunking source docs and retrieval with Chroma Cloud to agentic tools, rolling summaries, and thumbs-down retry logic.">
+<link rel="canonical" href="https://www.ahmadhassan.pro/blog/production-rag-chatbot/">
+<meta name="author" content="Ahmad Hassan">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.ahmadhassan.pro/blog/production-rag-chatbot/">
+<meta property="og:title" content="Building a Production RAG Chatbot with OpenAI, Chroma, and Claude | Ahmad Hassan">
+<meta property="og:description" content="How I built a knowledge-base chatbot for REConnect — from chunking source docs and retrieval with Chroma Cloud to agentic tools, rolling summaries, and thumbs-down retry logic.">
+<meta property="og:image" content="https://www.ahmadhassan.pro/images/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Building a Production RAG Chatbot with OpenAI, Chroma, and Claude | Ahmad Hassan">
+<meta name="twitter:description" content="How I built a knowledge-base chatbot for REConnect — from chunking source docs and retrieval with Chroma Cloud to agentic tools, rolling summaries, and thumbs-down retry logic.">
+<meta name="twitter:image" content="https://www.ahmadhassan.pro/images/og-image.jpg">
+<link rel="alternate" type="application/rss+xml" title="Ahmad Hassan — Blog" href="/blog/rss.xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#05070f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/blog/blog.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Building a Production RAG Chatbot with OpenAI, Chroma, and Claude",
+  "description": "How I built a knowledge-base chatbot for REConnect — from chunking source docs and retrieval with Chroma Cloud to agentic tools, rolling summaries, and thumbs-down retry logic.",
+  "image": "https://www.ahmadhassan.pro/images/og-image.jpg",
+  "datePublished": "2026-10-07",
+  "dateModified": "2026-10-07",
+  "author": {
+    "@type": "Person",
+    "name": "Ahmad Hassan",
+    "url": "https://www.ahmadhassan.pro/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Ahmad Hassan",
+    "url": "https://www.ahmadhassan.pro/"
+  },
+  "mainEntityOfPage": "https://www.ahmadhassan.pro/blog/production-rag-chatbot/",
+  "articleSection": "AI / RAG Systems"
+}
+</script>
+</head>
+<body>
+<div class="orb"></div>
+<header class="bnav">
+  <div class="wrap bnav-in">
+    <a href="/" class="brand"><div class="brand-badge">AH</div><div class="brand-name">Ahmad<em> Hassan</em></div></a>
+    <nav class="bnav-links">
+      <a href="/" class="hide-sm">Portfolio</a>
+      <a href="/blog/" class="on">Blog</a>
+      <a href="/#contact">Contact</a>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
+        <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <svg id="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+<main class="narrow">
+  <header class="post-head">
+    <a href="/blog/" class="back">← All articles</a><br>
+    <span class="eyebrow">AI / RAG Systems</span>
+    <h1>Building a Production RAG Chatbot with OpenAI, Chroma, and Claude</h1>
+    <p class="lede">How I built a knowledge-base chatbot for REConnect — from chunking source docs and retrieval with Chroma Cloud to agentic tools, rolling summaries, and thumbs-down retry logic.</p>
+    <div class="byline">
+      <img src="/images/ah.webp" alt="Ahmad Hassan" width="42" height="42">
+      <div><div class="who">Ahmad Hassan</div><div class="when"><time datetime="2026-10-07">Oct 7, 2026</time> · 4 min read</div></div>
+    </div>
+  </header>
+  <article class="prose">
+<p>Most chatbot demos stop at "embed some documents, retrieve a few chunks, ask the model." That gets you a demo. Getting to something you can put on a real product's website — where users ask about pricing, coverage, and their own account — takes a lot more.</p>
+<p>This post walks through the chatbot I built for <strong>REConnect</strong>, a real estate data platform, at <a href="https://sltech.io/">SLTech</a>. It started as a straightforward retrieval-augmented generation (RAG) widget and grew into an agent that can look things up, adapt its tone, and guide people through sign-up.</p>
+<h2>The stack</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Embeddings</td>
+<td>OpenAI embeddings</td>
+</tr>
+<tr>
+<td>Vector store</td>
+<td>Chroma Cloud</td>
+</tr>
+<tr>
+<td>Answer model</td>
+<td>Claude Haiku 4.5</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>Node.js</td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>Site chat widget</td>
+</tr>
+</tbody>
+</table>
+<p>I picked a small, fast model for answering on purpose. In a support widget, latency is part of the experience — and when retrieval does its job, the model mostly needs to read and summarise well, not reason for a long time.</p>
+<h2>Step 1: Chunk the source documents</h2>
+<p>The knowledge base is the product's own content: <strong>pricing, MLS coverage, and FAQs</strong>. Each type of document has a natural shape, and chunking along that shape matters more than any clever splitting algorithm:</p>
+<ul>
+<li><strong>FAQs</strong> — one question and its answer per chunk. Never split an answer from its question.</li>
+<li><strong>Pricing</strong> — one plan per chunk, with the plan name repeated in the chunk text so it still makes sense on its own.</li>
+<li><strong>MLS coverage</strong> — grouped by region/provider so a question like "do you cover X?" lands on a chunk that actually names X.</li>
+</ul>
+<p>Every chunk carries metadata (source, section, last updated) so I can filter, debug, and re-index one source without touching the rest.</p>
+<pre><code class="language-js">// Simplified: index one document's chunks into Chroma
+const embeddings = await openai.embeddings.create({
+  model: EMBEDDING_MODEL,
+  input: chunks.map(c =&gt; c.text),
+});
+
+await collection.upsert({
+  ids: chunks.map(c =&gt; c.id),
+  documents: chunks.map(c =&gt; c.text),
+  embeddings: embeddings.data.map(e =&gt; e.embedding),
+  metadatas: chunks.map(c =&gt; ({ source: c.source, section: c.section })),
+});
+</code></pre>
+<h2>Step 2: Retrieve, then let the model answer</h2>
+<p>For each user message, the backend embeds the query, pulls the <strong>10 most relevant chunks</strong> from Chroma, and passes them to Claude with a system prompt that keeps it grounded:</p>
+<ul>
+<li>answer only from the provided context and the user's data;</li>
+<li>say so plainly when the answer isn't there, and offer a next step (contact support, see pricing) instead of guessing.</li>
+</ul>
+<p>Ten chunks is a deliberate trade-off. Too few and multi-part questions ("how much is the pro plan and does it cover my MLS?") miss half the answer. Too many and you pay for tokens the model has to wade through. Because the chunks are small and well-shaped, ten fits comfortably.</p>
+<h2>Step 3: From answering to acting</h2>
+<p>A pure RAG bot can only quote documents. Users kept asking things the documents couldn't answer — "is my listing live?", "which plan am I on?" — so I gave the bot tools:</p>
+<ul>
+<li><strong>MLS provider lookups</strong> — check coverage against live data rather than a static page.</li>
+<li><strong>Account, plan, and listing data</strong> for logged-in users — the bot can answer about <em>their</em> account, scoped strictly to the authenticated user.</li>
+<li><strong>Guided sign-up flows</strong> — the bot can walk someone through creating an account, with <strong>explicit confirmation steps</strong> before anything is submitted.</li>
+</ul>
+<p>The confirmation step is the important part. A model deciding to take an action is fine; a model taking it without the user seeing exactly what will happen is not.</p>
+<h2>Step 4: Make it feel right for each user</h2>
+<p><strong>Role-aware tone.</strong> An agent, a broker, and a first-time visitor need different answers to the same question. The bot adjusts its tone and level of detail based on who's asking.</p>
+<p><strong>Rolling conversation summaries.</strong> Long chats are where costs and confusion creep in. Instead of resending the whole transcript, older turns are periodically folded into a running summary, and only recent turns are sent verbatim. The model keeps the thread of the conversation without the context growing forever.</p>
+<h2>Step 5: Production guardrails</h2>
+<p>The unglamorous part is what makes it shippable:</p>
+<ul>
+<li><strong>Rate limiting</strong> per user/session, so one client (or bot) can't run up the bill or degrade the widget for everyone else.</li>
+<li><strong>Thumbs-down retry.</strong> When a user marks an answer as unhelpful, the bot retries with that feedback in context instead of just logging it. It's a cheap way to recover a conversation in the moment — and the logged thumbs-downs show exactly where the knowledge base has gaps.</li>
+</ul>
+<h2>What I'd tell anyone building one</h2>
+<ol>
+<li><strong>Chunking is the product.</strong> Most "the bot gave a wrong answer" bugs were retrieval bugs, and most retrieval bugs were chunking bugs.</li>
+<li><strong>Small model, good context</strong> beats big model, bad context — for latency and for cost.</li>
+<li><strong>Tools need confirmations</strong>, and user-data tools need strict scoping to the signed-in user.</li>
+<li><strong>Feedback buttons should do something</strong> in the moment, not just feed a dashboard.</li>
+</ol>
+<p>If you're building something similar, I'm happy to compare notes — <a href="/#contact">get in touch</a>.</p>
+  </article>
+  <aside class="cta">
+    <div><h3>Building something similar?</h3><p>I'm a senior full-stack developer and team lead — happy to talk.</p></div>
+    <a class="btn" href="/#contact">Get in touch →</a>
+  </aside>
+  <nav class="pn"><a class="next" href="/blog/claude-mcp-coolify-oauth-shim/"><small>Older →</small><span>Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim</span></a></nav>
+</main>
+<footer class="bfoot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Ahmad Hassan</span>
+    <span><a href="/">Portfolio</a> · <a href="/blog/rss.xml">RSS</a> · <a href="https://www.linkedin.com/in/aimhassan" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://github.com/aim878" target="_blank" rel="noopener">GitHub</a></span>
+  </div>
+</footer>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+document.getElementById('themeBtn').addEventListener('click', function () {
+  var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('ah-theme', next); } catch (e) {}
+});
+</script>
+</body>
+</html>

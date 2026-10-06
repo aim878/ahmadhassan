@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Ahmad Hassan — Blog</title>
+  <link>https://www.ahmadhassan.pro/blog/</link>
+  <atom:link href="https://www.ahmadhassan.pro/blog/rss.xml" rel="self" type="application/rss+xml"/>
+  <description>Articles on AI/RAG systems, deployment tooling, and full-stack performance.</description>
+  <language>en</language>
+  <item>
+    <title>Building a Production RAG Chatbot with OpenAI, Chroma, and Claude</title>
+    <link>https://www.ahmadhassan.pro/blog/production-rag-chatbot/</link>
+    <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/production-rag-chatbot/</guid>
+    <pubDate>Wed, 07 Oct 2026 00:00:00 +0000</pubDate>
+    <category>AI / RAG Systems</category>
+    <description>How I built a knowledge-base chatbot for REConnect — from chunking source docs and retrieval with Chroma Cloud to agentic tools, rolling summaries, and thumbs-down retry logic.</description>
+    <content:encoded><![CDATA[<p>Most chatbot demos stop at "embed some documents, retrieve a few chunks, ask the model." That gets you a demo. Getting to something you can put on a real product's website — where users ask about pricing, coverage, and their own account — takes a lot more.</p>
+<p>This post walks through the chatbot I built for <strong>REConnect</strong>, a real estate data platform, at <a href="https://sltech.io/">SLTech</a>. It started as a straightforward retrieval-augmented generation (RAG) widget and grew into an agent that can look things up, adapt its tone, and guide people through sign-up.</p>
+<h2>The stack</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Embeddings</td>
+<td>OpenAI embeddings</td>
+</tr>
+<tr>
+<td>Vector store</td>
+<td>Chroma Cloud</td>
+</tr>
+<tr>
+<td>Answer model</td>
+<td>Claude Haiku 4.5</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>Node.js</td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>Site chat widget</td>
+</tr>
+</tbody>
+</table>
+<p>I picked a small, fast model for answering on purpose. In a support widget, latency is part of the experience — and when retrieval does its job, the model mostly needs to read and summarise well, not reason for a long time.</p>
+<h2>Step 1: Chunk the source documents</h2>
+<p>The knowledge base is the product's own content: <strong>pricing, MLS coverage, and FAQs</strong>. Each type of document has a natural shape, and chunking along that shape matters more than any clever splitting algorithm:</p>
+<ul>
+<li><strong>FAQs</strong> — one question and its answer per chunk. Never split an answer from its question.</li>
+<li><strong>Pricing</strong> — one plan per chunk, with the plan name repeated in the chunk text so it still makes sense on its own.</li>
+<li><strong>MLS coverage</strong> — grouped by region/provider so a question like "do you cover X?" lands on a chunk that actually names X.</li>
+</ul>
+<p>Every chunk carries metadata (source, section, last updated) so I can filter, debug, and re-index one source without touching the rest.</p>
+<pre><code class="language-js">// Simplified: index one document's chunks into Chroma
+const embeddings = await openai.embeddings.create({
+  model: EMBEDDING_MODEL,
+  input: chunks.map(c =&gt; c.text),
+});
+
+await collection.upsert({
+  ids: chunks.map(c =&gt; c.id),
+  documents: chunks.map(c =&gt; c.text),
+  embeddings: embeddings.data.map(e =&gt; e.embedding),
+  metadatas: chunks.map(c =&gt; ({ source: c.source, section: c.section })),
+});
+</code></pre>
+<h2>Step 2: Retrieve, then let the model answer</h2>
+<p>For each user message, the backend embeds the query, pulls the <strong>10 most relevant chunks</strong> from Chroma, and passes them to Claude with a system prompt that keeps it grounded:</p>
+<ul>
+<li>answer only from the provided context and the user's data;</li>
+<li>say so plainly when the answer isn't there, and offer a next step (contact support, see pricing) instead of guessing.</li>
+</ul>
+<p>Ten chunks is a deliberate trade-off. Too few and multi-part questions ("how much is the pro plan and does it cover my MLS?") miss half the answer. Too many and you pay for tokens the model has to wade through. Because the chunks are small and well-shaped, ten fits comfortably.</p>
+<h2>Step 3: From answering to acting</h2>
+<p>A pure RAG bot can only quote documents. Users kept asking things the documents couldn't answer — "is my listing live?", "which plan am I on?" — so I gave the bot tools:</p>
+<ul>
+<li><strong>MLS provider lookups</strong> — check coverage against live data rather than a static page.</li>
+<li><strong>Account, plan, and listing data</strong> for logged-in users — the bot can answer about <em>their</em> account, scoped strictly to the authenticated user.</li>
+<li><strong>Guided sign-up flows</strong> — the bot can walk someone through creating an account, with <strong>explicit confirmation steps</strong> before anything is submitted.</li>
+</ul>
+<p>The confirmation step is the important part. A model deciding to take an action is fine; a model taking it without the user seeing exactly what will happen is not.</p>
+<h2>Step 4: Make it feel right for each user</h2>
+<p><strong>Role-aware tone.</strong> An agent, a broker, and a first-time visitor need different answers to the same question. The bot adjusts its tone and level of detail based on who's asking.</p>
+<p><strong>Rolling conversation summaries.</strong> Long chats are where costs and confusion creep in. Instead of resending the whole transcript, older turns are periodically folded into a running summary, and only recent turns are sent verbatim. The model keeps the thread of the conversation without the context growing forever.</p>
+<h2>Step 5: Production guardrails</h2>
+<p>The unglamorous part is what makes it shippable:</p>
+<ul>
+<li><strong>Rate limiting</strong> per user/session, so one client (or bot) can't run up the bill or degrade the widget for everyone else.</li>
+<li><strong>Thumbs-down retry.</strong> When a user marks an answer as unhelpful, the bot retries with that feedback in context instead of just logging it. It's a cheap way to recover a conversation in the moment — and the logged thumbs-downs show exactly where the knowledge base has gaps.</li>
+</ul>
+<h2>What I'd tell anyone building one</h2>
+<ol>
+<li><strong>Chunking is the product.</strong> Most "the bot gave a wrong answer" bugs were retrieval bugs, and most retrieval bugs were chunking bugs.</li>
+<li><strong>Small model, good context</strong> beats big model, bad context — for latency and for cost.</li>
+<li><strong>Tools need confirmations</strong>, and user-data tools need strict scoping to the signed-in user.</li>
+<li><strong>Feedback buttons should do something</strong> in the moment, not just feed a dashboard.</li>
+</ol>
+<p>If you're building something similar, I'm happy to compare notes — <a href="/#contact">get in touch</a>.</p>]]></content:encoded>
+  </item>
+  <item>
+    <title>Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim</title>
+    <link>https://www.ahmadhassan.pro/blog/claude-mcp-coolify-oauth-shim/</link>
+    <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/claude-mcp-coolify-oauth-shim/</guid>
+    <pubDate>Wed, 07 Oct 2026 00:00:00 +0000</pubDate>
+    <category>DevOps / MCP</category>
+    <description>Coolify&#x27;s API uses a static bearer token; Claude&#x27;s remote MCP connectors expect OAuth. Here&#x27;s the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.</description>
+    <content:encoded><![CDATA[<p>At <a href="https://sltech.io/">SLTech</a> we run client projects on a self-hosted <strong>Coolify</strong> instance. I wanted deployments to be something you could just ask for — "redeploy the staging app", "show me the last build logs" — from Claude, instead of clicking through a dashboard.</p>
+<p>The Model Context Protocol (MCP) makes that possible: an MCP server exposes Coolify's operations as tools Claude can call. The catch was authentication.</p>
+<h2>The mismatch</h2>
+<ul>
+<li><strong>Coolify's API</strong> authenticates with a <strong>static bearer token</strong>. One long-lived secret, full API access.</li>
+<li><strong>Claude's remote MCP connectors</strong> expect the server to speak <strong>OAuth</strong> — the user is sent through an authorization flow, and Claude receives tokens it can refresh.</li>
+</ul>
+<p>Handing the Coolify token to every client wasn't an option: there's no consent, no per-session revocation, and a leaked token means full access to the infrastructure. So I built a shim in the middle.</p>
+<h2>The shim's job</h2>
+<p>A small <strong>Node/Express</strong> service that:</p>
+<ol>
+<li><strong>Speaks OAuth to Claude</strong> — the authorization and token endpoints Claude's connector expects.</li>
+<li><strong>Shows a consent step</strong> before issuing anything, so access is an explicit decision rather than a side effect of knowing a URL.</li>
+<li><strong>Proxies MCP requests to Coolify</strong>, attaching the static bearer token <strong>server-side only</strong>. The real token never leaves the shim.</li>
+<li><strong>Stores sessions in Supabase</strong>, so they survive redeploys.</li>
+<li><strong>Rate-limits</strong> requests per session.</li>
+</ol>
+<pre><code class="language-text">Claude ──OAuth──▶  Shim (Node/Express)  ──Bearer token──▶  Coolify API
+                     │
+                     └── sessions &amp; tokens in Supabase
+</code></pre>
+<h2>Why Supabase for sessions</h2>
+<p>Keeping sessions in memory works right up until the shim itself is redeployed — which, on a tool whose whole purpose is deployments, happens a lot. Every redeploy would log everyone out and force them back through the OAuth flow.</p>
+<p>Storing sessions and tokens in Supabase (Postgres) avoids that: the process is stateless, and a redeploy is invisible to connected clients. It also gives one place to look up and revoke a session.</p>
+<pre><code class="language-js">// Simplified: look up a session by its access token
+const { data: session } = await supabase
+  .from('mcp_sessions')
+  .select('id, expires_at, revoked')
+  .eq('access_token_hash', hash(accessToken))
+  .single();
+
+if (!session || session.revoked || isExpired(session)) {
+  return res.status(401).json({ error: 'invalid_token' });
+}
+</code></pre>
+<p>Storing tokens hashed means a database read alone doesn't hand anyone a usable credential.</p>
+<h2>Guardrails</h2>
+<ul>
+<li><strong>Consent flow protection.</strong> The consent step is where a malicious link could try to trick someone into approving access, so it's protected against being completed by anything other than the user's own deliberate action.</li>
+<li><strong>Rate limiting.</strong> An agent in a loop can fire a lot of requests. Per-session limits keep one runaway conversation from hammering the Coolify API.</li>
+<li><strong>Least exposure.</strong> The Coolify token lives only in the shim's environment. Clients only ever hold shim-issued tokens that can be revoked individually.</li>
+</ul>
+<h2>The payoff: deployments by prompt</h2>
+<p>With the shim and a custom MCP server in place, deployments across our client projects became <strong>fully prompt-driven</strong>. Redeploys, status checks, and log reads happen from a conversation, and the manual click-through steps are gone.</p>
+<h2>Takeaways</h2>
+<ol>
+<li><strong>When two systems disagree on auth, put a small, boring service between them</strong> rather than weakening either side.</li>
+<li><strong>Never forward a master token to clients.</strong> Issue your own revocable tokens and keep the real one server-side.</li>
+<li><strong>Persist sessions outside the process</strong> — especially for a service you'll redeploy often.</li>
+<li><strong>Rate-limit anything an agent can call.</strong></li>
+</ol>
+<p>Questions about MCP or Coolify setups? <a href="/#contact">Get in touch</a>.</p>]]></content:encoded>
+  </item>
+  <item>
+    <title>Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading</title>
+    <link>https://www.ahmadhassan.pro/blog/cutting-api-response-times-40-percent/</link>
+    <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/cutting-api-response-times-40-percent/</guid>
+    <pubDate>Wed, 07 Oct 2026 00:00:00 +0000</pubDate>
+    <category>Performance</category>
+    <description>A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.</description>
+    <content:encoded><![CDATA[<p>At <a href="https://www.genius.co.uk/">The Genius Group</a> I worked on products and marketing infrastructure that saw real, spiky traffic — campaign funnels, lead submission, live data. As usage grew, API latency crept up. Through a combination of <strong>Redis caching, query tuning, and lazy loading</strong>, we brought response times down by roughly <strong>40%</strong>.</p>
+<p>None of these techniques is new. The value is in applying them in the right order and measuring as you go.</p>
+<h2>1. Measure first</h2>
+<p>Before changing anything, find out where the time actually goes. For each slow endpoint I looked at:</p>
+<ul>
+<li><strong>total response time</strong> — at typical and peak load, not just the average;</li>
+<li><strong>time spent in the database</strong> vs. in application code vs. waiting on third-party APIs;</li>
+<li><strong>how many queries</strong> a single request triggers.</li>
+</ul>
+<p>That last number is often the biggest surprise.</p>
+<h2>2. Fix the queries</h2>
+<p>Caching a slow query just hides it until the cache misses. So queries came first.</p>
+<p><strong>Read the query plan.</strong> <code>EXPLAIN ANALYZE</code> shows what the database is really doing:</p>
+<pre><code class="language-sql">EXPLAIN ANALYZE
+SELECT id, status, created_at
+FROM leads
+WHERE campaign_id = $1
+ORDER BY created_at DESC
+LIMIT 50;
+</code></pre>
+<p>A sequential scan over a large table for a filter-and-sort like this is the classic sign of a missing index. A composite index matching the filter and sort order turns it into an index scan:</p>
+<pre><code class="language-sql">CREATE INDEX idx_leads_campaign_created
+  ON leads (campaign_id, created_at DESC);
+</code></pre>
+<p><strong>Kill N+1 queries.</strong> Loading a list, then querying related data once per row, scales linearly with the list. Fetching related rows in one query (a join, or a single <code>WHERE id = ANY($1)</code> lookup) collapses dozens of round trips into one.</p>
+<p><strong>Select only what you use.</strong> <code>SELECT *</code> on wide tables moves data nobody reads.</p>
+<h2>3. Cache what's read often and changes rarely</h2>
+<p>With queries in good shape, <strong>Redis</strong> took the remaining repeated work off the database. I used the cache-aside pattern:</p>
+<pre><code class="language-js">async function getCampaign(id) {
+  const key = `campaign:${id}`;
+  const cached = await redis.get(key);
+  if (cached) return JSON.parse(cached);
+
+  const campaign = await db.campaigns.findById(id);
+  await redis.set(key, JSON.stringify(campaign), 'EX', 300);
+  return campaign;
+}
+</code></pre>
+<p>The rules that kept it correct:</p>
+<ul>
+<li><strong>Cache by access pattern, not by table.</strong> Good candidates are read on almost every request and change rarely — configuration, campaign settings, reference data.</li>
+<li><strong>Always set a TTL.</strong> Even with explicit invalidation, a TTL is the safety net against stale data living forever.</li>
+<li><strong>Invalidate on write.</strong> When the source record changes, delete its key so the next read repopulates it.</li>
+<li><strong>Don't cache per-user, fast-changing data</strong> unless you have a clear invalidation story.</li>
+</ul>
+<h2>4. Lazy-load the expensive parts</h2>
+<p>Some responses were slow because they did everything up front — computing or fetching data that most callers never used. Deferring that work helped on both sides:</p>
+<ul>
+<li><strong>API side:</strong> return the core payload immediately; expose expensive, rarely-needed details through a separate endpoint or on request.</li>
+<li><strong>Frontend side:</strong> load heavy components and below-the-fold data only when needed, so the page becomes usable sooner.</li>
+</ul>
+<h2>5. Make it stick</h2>
+<p>A one-off speed-up decays as features are added. To keep the gains:</p>
+<ul>
+<li>keep an eye on slow-query logs and endpoint latency after each release;</li>
+<li>treat a new N+1 or an unindexed filter as a bug in code review;</li>
+<li>keep the infrastructure efficient too — at TGG that included serving over <strong>HTTP/2</strong> with proper SSL configuration on our AWS servers.</li>
+</ul>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What it fixed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Measure</td>
+<td>Found where time was really spent</td>
+</tr>
+<tr>
+<td>Query tuning</td>
+<td>Missing indexes, N+1 queries, over-fetching</td>
+</tr>
+<tr>
+<td>Redis caching</td>
+<td>Repeated reads of rarely-changing data</td>
+</tr>
+<tr>
+<td>Lazy loading</td>
+<td>Work done up front that most requests didn't need</td>
+</tr>
+</tbody>
+</table>
+<p>Together these brought response times down by about 40%. The order matters: <strong>measure, fix queries, then cache, then defer.</strong></p>
+<p>Working on a slow API? <a href="/#contact">Let's talk</a>.</p>]]></content:encoded>
+  </item>
+</channel>
+</rss>

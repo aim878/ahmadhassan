@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>try{var t=localStorage.getItem('ah-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<title>Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading | Ahmad Hassan</title>
+<meta name="description" content="A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.">
+<link rel="canonical" href="https://www.ahmadhassan.pro/blog/cutting-api-response-times-40-percent/">
+<meta name="author" content="Ahmad Hassan">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.ahmadhassan.pro/blog/cutting-api-response-times-40-percent/">
+<meta property="og:title" content="Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading | Ahmad Hassan">
+<meta property="og:description" content="A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.">
+<meta property="og:image" content="https://www.ahmadhassan.pro/images/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading | Ahmad Hassan">
+<meta name="twitter:description" content="A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.">
+<meta name="twitter:image" content="https://www.ahmadhassan.pro/images/og-image.jpg">
+<link rel="alternate" type="application/rss+xml" title="Ahmad Hassan — Blog" href="/blog/rss.xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#05070f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/blog/blog.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading",
+  "description": "A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.",
+  "image": "https://www.ahmadhassan.pro/images/og-image.jpg",
+  "datePublished": "2026-10-07",
+  "dateModified": "2026-10-07",
+  "author": {
+    "@type": "Person",
+    "name": "Ahmad Hassan",
+    "url": "https://www.ahmadhassan.pro/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Ahmad Hassan",
+    "url": "https://www.ahmadhassan.pro/"
+  },
+  "mainEntityOfPage": "https://www.ahmadhassan.pro/blog/cutting-api-response-times-40-percent/",
+  "articleSection": "Performance"
+}
+</script>
+</head>
+<body>
+<div class="orb"></div>
+<header class="bnav">
+  <div class="wrap bnav-in">
+    <a href="/" class="brand"><div class="brand-badge">AH</div><div class="brand-name">Ahmad<em> Hassan</em></div></a>
+    <nav class="bnav-links">
+      <a href="/" class="hide-sm">Portfolio</a>
+      <a href="/blog/" class="on">Blog</a>
+      <a href="/#contact">Contact</a>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
+        <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <svg id="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+<main class="narrow">
+  <header class="post-head">
+    <a href="/blog/" class="back">← All articles</a><br>
+    <span class="eyebrow">Performance</span>
+    <h1>Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading</h1>
+    <p class="lede">A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.</p>
+    <div class="byline">
+      <img src="/images/ah.webp" alt="Ahmad Hassan" width="42" height="42">
+      <div><div class="who">Ahmad Hassan</div><div class="when"><time datetime="2026-10-07">Oct 7, 2026</time> · 3 min read</div></div>
+    </div>
+  </header>
+  <article class="prose">
+<p>At <a href="https://www.genius.co.uk/">The Genius Group</a> I worked on products and marketing infrastructure that saw real, spiky traffic — campaign funnels, lead submission, live data. As usage grew, API latency crept up. Through a combination of <strong>Redis caching, query tuning, and lazy loading</strong>, we brought response times down by roughly <strong>40%</strong>.</p>
+<p>None of these techniques is new. The value is in applying them in the right order and measuring as you go.</p>
+<h2>1. Measure first</h2>
+<p>Before changing anything, find out where the time actually goes. For each slow endpoint I looked at:</p>
+<ul>
+<li><strong>total response time</strong> — at typical and peak load, not just the average;</li>
+<li><strong>time spent in the database</strong> vs. in application code vs. waiting on third-party APIs;</li>
+<li><strong>how many queries</strong> a single request triggers.</li>
+</ul>
+<p>That last number is often the biggest surprise.</p>
+<h2>2. Fix the queries</h2>
+<p>Caching a slow query just hides it until the cache misses. So queries came first.</p>
+<p><strong>Read the query plan.</strong> <code>EXPLAIN ANALYZE</code> shows what the database is really doing:</p>
+<pre><code class="language-sql">EXPLAIN ANALYZE
+SELECT id, status, created_at
+FROM leads
+WHERE campaign_id = $1
+ORDER BY created_at DESC
+LIMIT 50;
+</code></pre>
+<p>A sequential scan over a large table for a filter-and-sort like this is the classic sign of a missing index. A composite index matching the filter and sort order turns it into an index scan:</p>
+<pre><code class="language-sql">CREATE INDEX idx_leads_campaign_created
+  ON leads (campaign_id, created_at DESC);
+</code></pre>
+<p><strong>Kill N+1 queries.</strong> Loading a list, then querying related data once per row, scales linearly with the list. Fetching related rows in one query (a join, or a single <code>WHERE id = ANY($1)</code> lookup) collapses dozens of round trips into one.</p>
+<p><strong>Select only what you use.</strong> <code>SELECT *</code> on wide tables moves data nobody reads.</p>
+<h2>3. Cache what's read often and changes rarely</h2>
+<p>With queries in good shape, <strong>Redis</strong> took the remaining repeated work off the database. I used the cache-aside pattern:</p>
+<pre><code class="language-js">async function getCampaign(id) {
+  const key = `campaign:${id}`;
+  const cached = await redis.get(key);
+  if (cached) return JSON.parse(cached);
+
+  const campaign = await db.campaigns.findById(id);
+  await redis.set(key, JSON.stringify(campaign), 'EX', 300);
+  return campaign;
+}
+</code></pre>
+<p>The rules that kept it correct:</p>
+<ul>
+<li><strong>Cache by access pattern, not by table.</strong> Good candidates are read on almost every request and change rarely — configuration, campaign settings, reference data.</li>
+<li><strong>Always set a TTL.</strong> Even with explicit invalidation, a TTL is the safety net against stale data living forever.</li>
+<li><strong>Invalidate on write.</strong> When the source record changes, delete its key so the next read repopulates it.</li>
+<li><strong>Don't cache per-user, fast-changing data</strong> unless you have a clear invalidation story.</li>
+</ul>
+<h2>4. Lazy-load the expensive parts</h2>
+<p>Some responses were slow because they did everything up front — computing or fetching data that most callers never used. Deferring that work helped on both sides:</p>
+<ul>
+<li><strong>API side:</strong> return the core payload immediately; expose expensive, rarely-needed details through a separate endpoint or on request.</li>
+<li><strong>Frontend side:</strong> load heavy components and below-the-fold data only when needed, so the page becomes usable sooner.</li>
+</ul>
+<h2>5. Make it stick</h2>
+<p>A one-off speed-up decays as features are added. To keep the gains:</p>
+<ul>
+<li>keep an eye on slow-query logs and endpoint latency after each release;</li>
+<li>treat a new N+1 or an unindexed filter as a bug in code review;</li>
+<li>keep the infrastructure efficient too — at TGG that included serving over <strong>HTTP/2</strong> with proper SSL configuration on our AWS servers.</li>
+</ul>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What it fixed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Measure</td>
+<td>Found where time was really spent</td>
+</tr>
+<tr>
+<td>Query tuning</td>
+<td>Missing indexes, N+1 queries, over-fetching</td>
+</tr>
+<tr>
+<td>Redis caching</td>
+<td>Repeated reads of rarely-changing data</td>
+</tr>
+<tr>
+<td>Lazy loading</td>
+<td>Work done up front that most requests didn't need</td>
+</tr>
+</tbody>
+</table>
+<p>Together these brought response times down by about 40%. The order matters: <strong>measure, fix queries, then cache, then defer.</strong></p>
+<p>Working on a slow API? <a href="/#contact">Let's talk</a>.</p>
+  </article>
+  <aside class="cta">
+    <div><h3>Building something similar?</h3><p>I'm a senior full-stack developer and team lead — happy to talk.</p></div>
+    <a class="btn" href="/#contact">Get in touch →</a>
+  </aside>
+  <nav class="pn"><a href="/blog/claude-mcp-coolify-oauth-shim/"><small>← Newer</small><span>Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim</span></a></nav>
+</main>
+<footer class="bfoot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Ahmad Hassan</span>
+    <span><a href="/">Portfolio</a> · <a href="/blog/rss.xml">RSS</a> · <a href="https://www.linkedin.com/in/aimhassan" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://github.com/aim878" target="_blank" rel="noopener">GitHub</a></span>
+  </div>
+</footer>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+document.getElementById('themeBtn').addEventListener('click', function () {
+  var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('ah-theme', next); } catch (e) {}
+});
+</script>
+</body>
+</html>

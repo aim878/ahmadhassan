@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>try{var t=localStorage.getItem('ah-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<title>Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim | Ahmad Hassan</title>
+<meta name="description" content="Coolify&#x27;s API uses a static bearer token; Claude&#x27;s remote MCP connectors expect OAuth. Here&#x27;s the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.">
+<link rel="canonical" href="https://www.ahmadhassan.pro/blog/claude-mcp-coolify-oauth-shim/">
+<meta name="author" content="Ahmad Hassan">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.ahmadhassan.pro/blog/claude-mcp-coolify-oauth-shim/">
+<meta property="og:title" content="Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim | Ahmad Hassan">
+<meta property="og:description" content="Coolify&#x27;s API uses a static bearer token; Claude&#x27;s remote MCP connectors expect OAuth. Here&#x27;s the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.">
+<meta property="og:image" content="https://www.ahmadhassan.pro/images/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim | Ahmad Hassan">
+<meta name="twitter:description" content="Coolify&#x27;s API uses a static bearer token; Claude&#x27;s remote MCP connectors expect OAuth. Here&#x27;s the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.">
+<meta name="twitter:image" content="https://www.ahmadhassan.pro/images/og-image.jpg">
+<link rel="alternate" type="application/rss+xml" title="Ahmad Hassan — Blog" href="/blog/rss.xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#05070f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/blog/blog.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim",
+  "description": "Coolify's API uses a static bearer token; Claude's remote MCP connectors expect OAuth. Here's the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.",
+  "image": "https://www.ahmadhassan.pro/images/og-image.jpg",
+  "datePublished": "2026-10-07",
+  "dateModified": "2026-10-07",
+  "author": {
+    "@type": "Person",
+    "name": "Ahmad Hassan",
+    "url": "https://www.ahmadhassan.pro/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Ahmad Hassan",
+    "url": "https://www.ahmadhassan.pro/"
+  },
+  "mainEntityOfPage": "https://www.ahmadhassan.pro/blog/claude-mcp-coolify-oauth-shim/",
+  "articleSection": "DevOps / MCP"
+}
+</script>
+</head>
+<body>
+<div class="orb"></div>
+<header class="bnav">
+  <div class="wrap bnav-in">
+    <a href="/" class="brand"><div class="brand-badge">AH</div><div class="brand-name">Ahmad<em> Hassan</em></div></a>
+    <nav class="bnav-links">
+      <a href="/" class="hide-sm">Portfolio</a>
+      <a href="/blog/" class="on">Blog</a>
+      <a href="/#contact">Contact</a>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
+        <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <svg id="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+<main class="narrow">
+  <header class="post-head">
+    <a href="/blog/" class="back">← All articles</a><br>
+    <span class="eyebrow">DevOps / MCP</span>
+    <h1>Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim</h1>
+    <p class="lede">Coolify&#x27;s API uses a static bearer token; Claude&#x27;s remote MCP connectors expect OAuth. Here&#x27;s the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.</p>
+    <div class="byline">
+      <img src="/images/ah.webp" alt="Ahmad Hassan" width="42" height="42">
+      <div><div class="who">Ahmad Hassan</div><div class="when"><time datetime="2026-10-07">Oct 7, 2026</time> · 3 min read</div></div>
+    </div>
+  </header>
+  <article class="prose">
+<p>At <a href="https://sltech.io/">SLTech</a> we run client projects on a self-hosted <strong>Coolify</strong> instance. I wanted deployments to be something you could just ask for — "redeploy the staging app", "show me the last build logs" — from Claude, instead of clicking through a dashboard.</p>
+<p>The Model Context Protocol (MCP) makes that possible: an MCP server exposes Coolify's operations as tools Claude can call. The catch was authentication.</p>
+<h2>The mismatch</h2>
+<ul>
+<li><strong>Coolify's API</strong> authenticates with a <strong>static bearer token</strong>. One long-lived secret, full API access.</li>
+<li><strong>Claude's remote MCP connectors</strong> expect the server to speak <strong>OAuth</strong> — the user is sent through an authorization flow, and Claude receives tokens it can refresh.</li>
+</ul>
+<p>Handing the Coolify token to every client wasn't an option: there's no consent, no per-session revocation, and a leaked token means full access to the infrastructure. So I built a shim in the middle.</p>
+<h2>The shim's job</h2>
+<p>A small <strong>Node/Express</strong> service that:</p>
+<ol>
+<li><strong>Speaks OAuth to Claude</strong> — the authorization and token endpoints Claude's connector expects.</li>
+<li><strong>Shows a consent step</strong> before issuing anything, so access is an explicit decision rather than a side effect of knowing a URL.</li>
+<li><strong>Proxies MCP requests to Coolify</strong>, attaching the static bearer token <strong>server-side only</strong>. The real token never leaves the shim.</li>
+<li><strong>Stores sessions in Supabase</strong>, so they survive redeploys.</li>
+<li><strong>Rate-limits</strong> requests per session.</li>
+</ol>
+<pre><code class="language-text">Claude ──OAuth──▶  Shim (Node/Express)  ──Bearer token──▶  Coolify API
+                     │
+                     └── sessions &amp; tokens in Supabase
+</code></pre>
+<h2>Why Supabase for sessions</h2>
+<p>Keeping sessions in memory works right up until the shim itself is redeployed — which, on a tool whose whole purpose is deployments, happens a lot. Every redeploy would log everyone out and force them back through the OAuth flow.</p>
+<p>Storing sessions and tokens in Supabase (Postgres) avoids that: the process is stateless, and a redeploy is invisible to connected clients. It also gives one place to look up and revoke a session.</p>
+<pre><code class="language-js">// Simplified: look up a session by its access token
+const { data: session } = await supabase
+  .from('mcp_sessions')
+  .select('id, expires_at, revoked')
+  .eq('access_token_hash', hash(accessToken))
+  .single();
+
+if (!session || session.revoked || isExpired(session)) {
+  return res.status(401).json({ error: 'invalid_token' });
+}
+</code></pre>
+<p>Storing tokens hashed means a database read alone doesn't hand anyone a usable credential.</p>
+<h2>Guardrails</h2>
+<ul>
+<li><strong>Consent flow protection.</strong> The consent step is where a malicious link could try to trick someone into approving access, so it's protected against being completed by anything other than the user's own deliberate action.</li>
+<li><strong>Rate limiting.</strong> An agent in a loop can fire a lot of requests. Per-session limits keep one runaway conversation from hammering the Coolify API.</li>
+<li><strong>Least exposure.</strong> The Coolify token lives only in the shim's environment. Clients only ever hold shim-issued tokens that can be revoked individually.</li>
+</ul>
+<h2>The payoff: deployments by prompt</h2>
+<p>With the shim and a custom MCP server in place, deployments across our client projects became <strong>fully prompt-driven</strong>. Redeploys, status checks, and log reads happen from a conversation, and the manual click-through steps are gone.</p>
+<h2>Takeaways</h2>
+<ol>
+<li><strong>When two systems disagree on auth, put a small, boring service between them</strong> rather than weakening either side.</li>
+<li><strong>Never forward a master token to clients.</strong> Issue your own revocable tokens and keep the real one server-side.</li>
+<li><strong>Persist sessions outside the process</strong> — especially for a service you'll redeploy often.</li>
+<li><strong>Rate-limit anything an agent can call.</strong></li>
+</ol>
+<p>Questions about MCP or Coolify setups? <a href="/#contact">Get in touch</a>.</p>
+  </article>
+  <aside class="cta">
+    <div><h3>Building something similar?</h3><p>I'm a senior full-stack developer and team lead — happy to talk.</p></div>
+    <a class="btn" href="/#contact">Get in touch →</a>
+  </aside>
+  <nav class="pn"><a href="/blog/production-rag-chatbot/"><small>← Newer</small><span>Building a Production RAG Chatbot with OpenAI, Chroma, and Claude</span></a><a class="next" href="/blog/cutting-api-response-times-40-percent/"><small>Older →</small><span>Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading</span></a></nav>
+</main>
+<footer class="bfoot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Ahmad Hassan</span>
+    <span><a href="/">Portfolio</a> · <a href="/blog/rss.xml">RSS</a> · <a href="https://www.linkedin.com/in/aimhassan" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://github.com/aim878" target="_blank" rel="noopener">GitHub</a></span>
+  </div>
+</footer>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+document.getElementById('themeBtn').addEventListener('click', function () {
+  var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('ah-theme', next); } catch (e) {}
+});
+</script>
+</body>
+</html>

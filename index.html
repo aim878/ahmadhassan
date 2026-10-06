@@ -6,6 +6,7 @@
 <title>Ahmad Hassan | Senior Full-Stack Developer &amp; Team Lead</title>
 <meta name="description" content="Ahmad Hassan — Senior Full-Stack Developer & Team Lead with 10+ years building production web apps, enterprise SaaS and AI/RAG systems.">
 <link rel="canonical" href="https://www.ahmadhassan.pro/">
+<link rel="alternate" type="application/rss+xml" title="Ahmad Hassan — Blog" href="/blog/rss.xml">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -566,6 +567,8 @@ section { position:relative; padding:clamp(72px, 9vw, 128px) 0; overflow:hidden;
 .b-foot { display:flex; align-items:center; gap:8px; margin-top:22px; padding-top:18px; border-top:1px solid var(--border);
   font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); }
 .b-foot svg { width:13px; height:13px; }
+.bcard:hover .b-foot { color:var(--indigo-lt); }
+.blog-more { display:flex; justify-content:center; margin-top:36px; }
 
 /* ══════════════════════════════════════════════
    CONTACT
@@ -1175,36 +1178,37 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
     </div>
 
     <div class="card-grid">
-      <article class="bcard rv" style="--d:.05s">
-        <div class="b-top"><span class="b-cat">AI / RAG Systems</span><span class="b-flag">Draft</span></div>
+      <a href="/blog/production-rag-chatbot/" class="bcard rv" style="--d:.05s">
+        <div class="b-top"><span class="b-cat">AI / RAG Systems</span><span class="b-flag">4 min read</span></div>
         <h3 class="b-title">Building a Production RAG Chatbot with OpenAI, Chroma, and Claude</h3>
         <p class="b-excerpt">How I built a knowledge-base chatbot with agentic capabilities — from chunking source docs to rolling conversation summaries and thumbs-down retry logic.</p>
         <div class="b-foot">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-          Coming soon
+          Read article →
         </div>
-      </article>
+      </a>
 
-      <article class="bcard rv" style="--d:.11s">
-        <div class="b-top"><span class="b-cat">DevOps / MCP</span><span class="b-flag">Draft</span></div>
+      <a href="/blog/claude-mcp-coolify-oauth-shim/" class="bcard rv" style="--d:.11s">
+        <div class="b-top"><span class="b-cat">DevOps / MCP</span><span class="b-flag">3 min read</span></div>
         <h3 class="b-title">Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim</h3>
         <p class="b-excerpt">Why Coolify uses a static bearer token, why Claude expects OAuth, and how I built a small Node/Express shim to make them talk — with Supabase session persistence.</p>
         <div class="b-foot">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-          Coming soon
+          Read article →
         </div>
-      </article>
+      </a>
 
-      <article class="bcard rv" style="--d:.17s">
-        <div class="b-top"><span class="b-cat">Performance</span><span class="b-flag">Draft</span></div>
+      <a href="/blog/cutting-api-response-times-40-percent/" class="bcard rv" style="--d:.17s">
+        <div class="b-top"><span class="b-cat">Performance</span><span class="b-flag">3 min read</span></div>
         <h3 class="b-title">Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading</h3>
         <p class="b-excerpt">A practical breakdown of the caching strategies and PostgreSQL query optimizations I used at TGG to significantly reduce latency under production load.</p>
         <div class="b-foot">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-          Coming soon
+          Read article →
         </div>
-      </article>
+      </a>
     </div>
+    <div class="blog-more rv"><a href="/blog/" class="btn-ghost">View all articles →</a></div>
   </div>
 </section>
 
