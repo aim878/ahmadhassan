@@ -123,7 +123,7 @@ def jsonld(obj):
     return '<script type="application/ld+json">\n' + json.dumps(obj, indent=2, ensure_ascii=False) + "\n</script>"
 
 
-PERSON = {"@type": "Person", "name": AUTHOR, "url": f"{SITE}/"}
+PERSON = {"@type": "Person", "@id": f"{SITE}/#person", "name": AUTHOR, "url": f"{SITE}/"}
 
 
 def page_head(title, desc, url, ogtype, ld):
@@ -131,13 +131,23 @@ def page_head(title, desc, url, ogtype, ld):
 
 
 def render_post(p, prev, nxt):
-    ld = {
-        "@context": "https://schema.org", "@type": "BlogPosting",
+    crumbs = {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": f"{SITE}/"},
+            {"@type": "ListItem", "position": 2, "name": "Blog", "item": f"{SITE}/blog/"},
+            {"@type": "ListItem", "position": 3, "name": p["title"], "item": p["url"]},
+        ],
+    }
+    post = {
+        "@type": "BlogPosting",
         "headline": p["title"], "description": p["description"], "image": OG_IMAGE,
         "datePublished": p["date"], "dateModified": p.get("updated", p["date"]),
         "author": PERSON, "publisher": PERSON,
         "mainEntityOfPage": p["url"], "articleSection": p["category"],
+        "isPartOf": {"@id": f"{SITE}/#website"},
     }
+    ld = {"@context": "https://schema.org", "@graph": [post, crumbs]}
     pn = ""
     if prev or nxt:
         pn = '<nav class="pn">'

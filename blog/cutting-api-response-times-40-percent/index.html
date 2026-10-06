@@ -29,24 +29,56 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading",
-  "description": "A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.",
-  "image": "https://www.ahmadhassan.pro/images/og-image.jpg",
-  "datePublished": "2026-10-07",
-  "dateModified": "2026-10-07",
-  "author": {
-    "@type": "Person",
-    "name": "Ahmad Hassan",
-    "url": "https://www.ahmadhassan.pro/"
-  },
-  "publisher": {
-    "@type": "Person",
-    "name": "Ahmad Hassan",
-    "url": "https://www.ahmadhassan.pro/"
-  },
-  "mainEntityOfPage": "https://www.ahmadhassan.pro/blog/cutting-api-response-times-40-percent/",
-  "articleSection": "Performance"
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "headline": "Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading",
+      "description": "A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.",
+      "image": "https://www.ahmadhassan.pro/images/og-image.jpg",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "author": {
+        "@type": "Person",
+        "@id": "https://www.ahmadhassan.pro/#person",
+        "name": "Ahmad Hassan",
+        "url": "https://www.ahmadhassan.pro/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://www.ahmadhassan.pro/#person",
+        "name": "Ahmad Hassan",
+        "url": "https://www.ahmadhassan.pro/"
+      },
+      "mainEntityOfPage": "https://www.ahmadhassan.pro/blog/cutting-api-response-times-40-percent/",
+      "articleSection": "Performance",
+      "isPartOf": {
+        "@id": "https://www.ahmadhassan.pro/#website"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.ahmadhassan.pro/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://www.ahmadhassan.pro/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Cutting API Response Times by 40% with Redis, Query Tuning, and Lazy Loading",
+          "item": "https://www.ahmadhassan.pro/blog/cutting-api-response-times-40-percent/"
+        }
+      ]
+    }
+  ]
 }
 </script>
 </head>

@@ -29,24 +29,56 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim",
-  "description": "Coolify's API uses a static bearer token; Claude's remote MCP connectors expect OAuth. Here's the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.",
-  "image": "https://www.ahmadhassan.pro/images/og-image.jpg",
-  "datePublished": "2026-10-07",
-  "dateModified": "2026-10-07",
-  "author": {
-    "@type": "Person",
-    "name": "Ahmad Hassan",
-    "url": "https://www.ahmadhassan.pro/"
-  },
-  "publisher": {
-    "@type": "Person",
-    "name": "Ahmad Hassan",
-    "url": "https://www.ahmadhassan.pro/"
-  },
-  "mainEntityOfPage": "https://www.ahmadhassan.pro/blog/claude-mcp-coolify-oauth-shim/",
-  "articleSection": "DevOps / MCP"
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "headline": "Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim",
+      "description": "Coolify's API uses a static bearer token; Claude's remote MCP connectors expect OAuth. Here's the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.",
+      "image": "https://www.ahmadhassan.pro/images/og-image.jpg",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "author": {
+        "@type": "Person",
+        "@id": "https://www.ahmadhassan.pro/#person",
+        "name": "Ahmad Hassan",
+        "url": "https://www.ahmadhassan.pro/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://www.ahmadhassan.pro/#person",
+        "name": "Ahmad Hassan",
+        "url": "https://www.ahmadhassan.pro/"
+      },
+      "mainEntityOfPage": "https://www.ahmadhassan.pro/blog/claude-mcp-coolify-oauth-shim/",
+      "articleSection": "DevOps / MCP",
+      "isPartOf": {
+        "@id": "https://www.ahmadhassan.pro/#website"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.ahmadhassan.pro/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://www.ahmadhassan.pro/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Prompt-Driven Deployments: Bridging Claude MCP with Coolify via an OAuth Shim",
+          "item": "https://www.ahmadhassan.pro/blog/claude-mcp-coolify-oauth-shim/"
+        }
+      ]
+    }
+  ]
 }
 </script>
 </head>
