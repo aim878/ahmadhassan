@@ -121,3 +121,14 @@ img { display:block; max-width:100%; }
 .bfoot { border-top:1px solid var(--border); padding:28px 0; color:var(--faint); font-size:14px; }
 .bfoot .wrap { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .bfoot a:hover { color:var(--indigo-lt); }
+
+/* WhatsApp button */
+#wa { position:fixed; right:22px; bottom:22px; z-index:60; width:56px; height:56px; border-radius:999px; display:grid; place-items:center;
+  background:#25d366; color:#fff; box-shadow:0 10px 28px rgba(37,211,102,.4); transition:transform .3s, box-shadow .3s; }
+#wa:hover { transform:translateY(-3px) scale(1.05); box-shadow:0 14px 34px rgba(37,211,102,.55); }
+#wa svg { width:28px; height:28px; }
+#wa .wa-tip { position:absolute; right:calc(100% + 12px); top:50%; transform:translateY(-50%); white-space:nowrap; padding:8px 13px;
+  border-radius:10px; font-size:13px; font-weight:600; background:var(--surface-solid); color:var(--text); border:1px solid var(--border);
+  opacity:0; pointer-events:none; transition:opacity .25s; }
+#wa:hover .wa-tip { opacity:1; }
+@media (max-width:600px) { #wa { right:14px; bottom:14px; } #wa .wa-tip { display:none; } }
