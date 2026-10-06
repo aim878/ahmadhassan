@@ -511,6 +511,8 @@ section { position:relative; padding:clamp(72px, 9vw, 128px) 0; overflow:hidden;
 .tl-org { font-size:13.5px; color:var(--muted); margin-top:5px; margin-bottom:16px; }
 .tl-loc { font-family:var(--mono); font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--indigo-lt); margin:-4px 0 12px; }
 .tl-org b { color:var(--text); font-weight:700; }
+.ext-link { color:inherit; text-decoration:underline; text-decoration-color:rgba(129,140,248,.45); text-underline-offset:3px; transition:color .2s, text-decoration-color .2s; }
+.ext-link:hover { color:var(--indigo-lt); text-decoration-color:currentColor; }
 .tl-list { list-style:none; }
 .tl-list li { position:relative; padding-left:20px; font-size:13.8px; color:var(--muted); line-height:1.7; margin-bottom:9px; }
 .tl-list li:last-child { margin-bottom:0; }
@@ -1031,7 +1033,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
         <div class="tl-card">
           <span class="tl-date">Sep 2025 – Present</span>
           <div class="tl-role">Full-Stack Developer</div>
-          <div class="tl-org"><b>SLTech</b> — Real Estate &amp; AI Verticals</div>
+          <div class="tl-org"><b><a href="https://sltech.io/" target="_blank" rel="noopener" class="ext-link">SLTech</a></b> — Real Estate &amp; AI Verticals</div>
           <div class="tl-loc">Remote · US-based company</div>
           <ul class="tl-list">
             <li>Built a production RAG chatbot for REConnect using OpenAI embeddings, Chroma Cloud, and Claude Haiku 4.5 with agentic capabilities including MLS lookups, role-aware tone, and rolling conversation summaries.</li>
@@ -1047,7 +1049,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
         <div class="tl-card">
           <span class="tl-date">2023 – 2025</span>
           <div class="tl-role">Senior Full-Stack Engineer</div>
-          <div class="tl-org"><b>The Genius Group (TGG)</b> — Marketing &amp; SaaS</div>
+          <div class="tl-org"><b><a href="https://www.genius.co.uk/" target="_blank" rel="noopener" class="ext-link">The Genius Group (TGG)</a></b> — Marketing &amp; SaaS</div>
           <div class="tl-loc">UK-based company</div>
           <ul class="tl-list">
             <li>Led delivery of 4 flagship products: Nowsign (eSignature), Premier11 (live sports), Booking Platform, and AI/OCR Teacher Assistant.</li>
@@ -1065,7 +1067,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
           <div class="tl-role">Senior Software Engineer / Team Lead</div>
           <div class="tl-org"><b>ArhamSoft (Pvt) Ltd</b> — Healthcare &amp; Ed-tech</div>
           <ul class="tl-list">
-            <li>Led a team of 6 engineers delivering TheCareMD (US telemedicine), CureHotline, TeacherAI, and PeopleI (HRMS) — serving 200,000+ users.</li>
+            <li>Led a team of 6 engineers delivering <a href="https://www.thecaremd.com/" target="_blank" rel="noopener" class="ext-link">TheCareMD</a> (US telemedicine), CureHotline, TeacherAI, and PeopleI (HRMS) — serving 200,000+ users.</li>
             <li>Architected multi-tenant systems with JWT auth, RBAC, and optimized PostgreSQL/MySQL schemas under high-throughput API loads.</li>
           </ul>
         </div>
@@ -1152,7 +1154,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
 
       <article class="pcard rv" style="--d:.17s">
         <div class="p-head"><div class="p-icon">🏥</div><span class="p-index">/ 06</span></div>
-        <div class="p-name">TheCareMD</div>
+        <div class="p-name"><a href="https://www.thecaremd.com/" target="_blank" rel="noopener" class="ext-link">TheCareMD</a></div>
         <div class="p-kind">Healthcare · Telemedicine</div>
         <p class="p-desc">US telemedicine platform connecting patients with licensed doctors for virtual consultations, online prescriptions, and lab referrals.</p>
         <div class="p-stack"><span>Node.js</span><span>React</span><span>MySQL</span><span>Laravel</span></div>
