@@ -9,7 +9,7 @@ description: How I built a knowledge-base chatbot for REConnect — from chunkin
 
 Most chatbot demos stop at "embed some documents, retrieve a few chunks, ask the model." That gets you a demo. Getting to something you can put on a real product's website — where users ask about pricing, coverage, and their own account — takes a lot more.
 
-This post walks through the chatbot I built for **REConnect**, a real estate data platform, at [SLTech](https://sltech.io/). It started as a straightforward retrieval-augmented generation (RAG) widget and grew into an agent that can look things up, adapt its tone, and guide people through sign-up.
+This post walks through the chatbot I built for **[REConnect](https://reconnectapp.com/)**, a real estate data platform, at [SLTech](https://sltech.io/). It started as a straightforward retrieval-augmented generation (RAG) widget and grew into an agent that can look things up, adapt its tone, and guide people through sign-up.
 
 ## The stack
 

@@ -14,7 +14,7 @@
     <category>AI / RAG Systems</category>
     <description>How I built a knowledge-base chatbot for REConnect — from chunking source docs and retrieval with Chroma Cloud to agentic tools, rolling summaries, and thumbs-down retry logic.</description>
     <content:encoded><![CDATA[<p>Most chatbot demos stop at "embed some documents, retrieve a few chunks, ask the model." That gets you a demo. Getting to something you can put on a real product's website — where users ask about pricing, coverage, and their own account — takes a lot more.</p>
-<p>This post walks through the chatbot I built for <strong>REConnect</strong>, a real estate data platform, at <a href="https://sltech.io/">SLTech</a>. It started as a straightforward retrieval-augmented generation (RAG) widget and grew into an agent that can look things up, adapt its tone, and guide people through sign-up.</p>
+<p>This post walks through the chatbot I built for <strong><a href="https://reconnectapp.com/">REConnect</a></strong>, a real estate data platform, at <a href="https://sltech.io/">SLTech</a>. It started as a straightforward retrieval-augmented generation (RAG) widget and grew into an agent that can look things up, adapt its tone, and guide people through sign-up.</p>
 <h2>The stack</h2>
 <table>
 <thead>
