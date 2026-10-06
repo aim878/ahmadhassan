@@ -6,25 +6,32 @@
 <title>Ahmad Hassan | Senior Full-Stack Developer &amp; Team Lead</title>
 <meta name="description" content="Ahmad Hassan — Senior Full-Stack Developer & Team Lead with 10+ years building production web apps, enterprise SaaS and AI/RAG systems.">
 <link rel="canonical" href="https://www.ahmadhassan.pro/">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#05070f">
 <meta name="author" content="Ahmad Hassan">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="profile">
 <meta property="og:url" content="https://www.ahmadhassan.pro/">
 <meta property="og:title" content="Ahmad Hassan | Senior Full-Stack Developer &amp; Team Lead">
 <meta property="og:description" content="Ahmad Hassan — Senior Full-Stack Developer &amp; Team Lead with 10+ years building production web apps, enterprise SaaS and AI/RAG systems.">
-<meta property="og:image" content="https://www.ahmadhassan.pro/images/ah.png">
+<meta property="og:image" content="https://www.ahmadhassan.pro/images/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ahmad Hassan — Senior Full-Stack Developer &amp; Team Lead">
 <meta property="profile:first_name" content="Ahmad">
 <meta property="profile:last_name" content="Hassan">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Ahmad Hassan | Senior Full-Stack Developer &amp; Team Lead">
-<meta name="twitter:image" content="https://www.ahmadhassan.pro/images/ah.png">
+<meta name="twitter:image" content="https://www.ahmadhassan.pro/images/og-image.jpg">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Person",
   "name": "Ahmad Hassan",
   "url": "https://www.ahmadhassan.pro/",
-  "image": "https://www.ahmadhassan.pro/images/ah.png",
+  "image": "https://www.ahmadhassan.pro/images/ah.webp",
   "jobTitle": "Senior Full-Stack Developer",
   "email": "mailto:aimhassan878@gmail.com",
   "knowsAbout": ["Full-Stack Development", "React", "Next.js", "Node.js", "AI/RAG Systems", "Enterprise SaaS", "Cloud Infrastructure"],
@@ -831,7 +838,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
         <div class="orbit-chip b"><i></i>AI / RAG Systems</div>
 
         <div class="photo">
-          <img src="images/ah.png" alt="Ahmad Hassan, Senior Full-Stack Developer">
+          <img src="images/ah.webp" width="864" height="977" fetchpriority="high" alt="Ahmad Hassan, Senior Full-Stack Developer">
           <div class="photo-card">
             <div>
               <div class="pc-role">Senior Full-Stack Dev</div>
@@ -864,7 +871,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
     <div class="about-visual rv rv-l">
       <div class="about-ring"></div>
       <div class="about-photo">
-        <img src="images/ah.png" alt="Ahmad Hassan">
+        <img src="images/ah.webp" width="864" height="977" loading="lazy" decoding="async" alt="Ahmad Hassan">
         <div class="about-tags">
           <span>Lahore, PK</span><span>Team Lead</span><span>10+ Years</span><span>Open to Work</span>
         </div>
@@ -1241,7 +1248,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
         <div class="field"><label for="fName">First Name</label><input id="fName" type="text" placeholder="Ahmad" required></div>
         <div class="field"><label for="lName">Last Name</label><input id="lName" type="text" placeholder="Hassan"></div>
         <div class="field"><label for="email">Email Address</label><input id="email" type="email" placeholder="you@company.com" required></div>
-        <div class="field"><label for="phone">Phone Number</label><input id="phone" type="tel" placeholder="+92 300 0000000"></div>
+        <div class="field"><label for="phone">Phone Number</label><input id="phone" type="tel" placeholder="+1 555 123 4567"></div>
         <div class="field wide"><label for="subject">Subject</label><input id="subject" type="text" placeholder="What's this about?"></div>
         <div class="field wide"><label for="message">Your Message</label><textarea id="message" rows="6" placeholder="Tell me about your project..." required></textarea></div>
       </div>
@@ -1266,7 +1273,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
       <a href="#about">About</a><a href="#skills">Skills</a><a href="#experience">Experience</a>
       <a href="#projects">Projects</a><a href="#blog">Blog</a><a href="#contact">Contact</a>
     </div>
-    <div class="foot-note">© 2026 <b>Ahmad Hassan</b> — Designed &amp; built with care in Lahore</div>
+    <div class="foot-note">© <span id="year">2026</span> <b>Ahmad Hassan</b> — Designed &amp; built with care in Lahore</div>
   </div>
 </footer>
 
@@ -1439,6 +1446,8 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
       card.style.setProperty('--my', (e.clientY - r.top) + 'px');
     });
   });
+
+  $('#year').textContent = new Date().getFullYear();
 
   /* ── CONTACT FORM ────────────────────────── */
   const toast = $('#toast'), form = $('#contactForm'), sendBtn = $('#sendBtn');
