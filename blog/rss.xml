@@ -12,7 +12,7 @@
     <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/production-rag-chatbot/</guid>
     <pubDate>Wed, 07 Oct 2026 09:00:00 +0500</pubDate>
     <category>AI / RAG Systems</category>
-    <description>How I built a knowledge-base chatbot for REConnect — from chunking source docs and retrieval with Chroma Cloud to agentic tools, rolling summaries, and thumbs-down retry logic.</description>
+    <description>How I built REConnect&#x27;s production RAG chatbot with OpenAI embeddings, Chroma Cloud and Claude — chunking, agentic tools, and guardrails.</description>
     <content:encoded><![CDATA[<p>Most chatbot demos stop at "embed some documents, retrieve a few chunks, ask the model." That gets you a demo. Getting to something you can put on a real product's website — where users ask about pricing, coverage, and their own account — takes a lot more.</p>
 <p>This post walks through the chatbot I built for <strong><a href="https://reconnectapp.com/">REConnect</a></strong>, a real estate data platform, at <a href="https://sltech.io/">SLTech</a>. It started as a straightforward retrieval-augmented generation (RAG) widget and grew into an agent that can look things up, adapt its tone, and guide people through sign-up.</p>
 <h2>The stack</h2>
@@ -107,7 +107,7 @@ await collection.upsert({
     <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/claude-mcp-coolify-oauth-shim/</guid>
     <pubDate>Wed, 07 Oct 2026 09:00:00 +0500</pubDate>
     <category>DevOps / MCP</category>
-    <description>Coolify&#x27;s API uses a static bearer token; Claude&#x27;s remote MCP connectors expect OAuth. Here&#x27;s the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.</description>
+    <description>How I connected Claude MCP to self-hosted Coolify with a small Node/Express OAuth shim — Supabase sessions, rate limiting and consent.</description>
     <content:encoded><![CDATA[<p>At <a href="https://sltech.io/">SLTech</a> we run client projects on a self-hosted <strong>Coolify</strong> instance. I wanted deployments to be something you could just ask for — "redeploy the staging app", "show me the last build logs" — from Claude, instead of clicking through a dashboard.</p>
 <p>The Model Context Protocol (MCP) makes that possible: an MCP server exposes Coolify's operations as tools Claude can call. The catch was authentication.</p>
 <h2>The mismatch</h2>
@@ -167,7 +167,7 @@ if (!session || session.revoked || isExpired(session)) {
     <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/cutting-api-response-times-40-percent/</guid>
     <pubDate>Wed, 07 Oct 2026 09:00:00 +0500</pubDate>
     <category>Performance</category>
-    <description>A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.</description>
+    <description>How Redis caching, query tuning and lazy loading cut API response times by ~40% at The Genius Group — a practical, step-by-step breakdown.</description>
     <content:encoded><![CDATA[<p>At <a href="https://www.genius.co.uk/">The Genius Group</a> I worked on products and marketing infrastructure that saw real, spiky traffic — campaign funnels, lead submission, live data. As usage grew, API latency crept up. Through a combination of <strong>Redis caching, query tuning, and lazy loading</strong>, we brought response times down by roughly <strong>40%</strong>.</p>
 <p>None of these techniques is new. The value is in applying them in the right order and measuring as you go.</p>
 <h2>1. Measure first</h2>

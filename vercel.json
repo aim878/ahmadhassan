@@ -1,5 +1,9 @@
 {
+  "trailingSlash": true,
   "redirects": [
-    { "source": "/Ahmad_Hassan_Portfolio.html", "destination": "/", "permanent": true }
+    { "source": "/Ahmad_Hassan_Portfolio.html", "destination": "/", "permanent": true },
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/blog/index.html", "destination": "/blog/", "permanent": true },
+    { "source": "/blog/:slug/index.html", "destination": "/blog/:slug/", "permanent": true }
   ]
 }

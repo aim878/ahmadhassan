@@ -4,6 +4,7 @@ slug: claude-mcp-coolify-oauth-shim
 date: 2026-10-07
 order: 2
 category: DevOps / MCP
+summary: "How I connected Claude MCP to self-hosted Coolify with a small Node/Express OAuth shim — Supabase sessions, rate limiting and consent."
 description: Coolify's API uses a static bearer token; Claude's remote MCP connectors expect OAuth. Here's the small Node/Express shim I built to connect them — with Supabase-backed sessions, rate limiting, and a consent step.
 ---
 

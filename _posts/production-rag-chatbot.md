@@ -4,6 +4,7 @@ slug: production-rag-chatbot
 date: 2026-10-07
 order: 1
 category: AI / RAG Systems
+summary: "How I built REConnect's production RAG chatbot with OpenAI embeddings, Chroma Cloud and Claude — chunking, agentic tools, and guardrails."
 description: How I built a knowledge-base chatbot for REConnect — from chunking source docs and retrieval with Chroma Cloud to agentic tools, rolling summaries, and thumbs-down retry logic.
 ---
 

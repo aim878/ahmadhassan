@@ -10,7 +10,8 @@ Reads _posts/*.md (front matter + Markdown) and writes:
   sitemap.xml                homepage + blog pages
 
 Front matter keys: title, slug, date (YYYY-MM-DD), category, description.
-Optional: order (tie-breaker for posts on the same date; lower shows first), updated.
+Optional: order (tie-breaker for posts on the same date; lower shows first), updated,
+summary (search-result snippet, keep under ~155 chars; defaults to description).
 Requires: pip install markdown
 """
 import html
@@ -40,6 +41,7 @@ def parse(path):
         if ":" in line:
             k, v = line.split(":", 1)
             meta[k.strip()] = v.strip().strip('"')
+    meta.setdefault("summary", meta.get("description", ""))
     for key in ("title", "slug", "date", "category", "description"):
         if not meta.get(key):
             raise SystemExit(f"{path.name}: front matter needs '{key}'")
@@ -149,7 +151,7 @@ def render_post(p, prev, nxt):
     }
     post = {
         "@type": "BlogPosting",
-        "headline": p["title"], "description": p["description"], "image": OG_IMAGE,
+        "headline": p["title"], "description": p["summary"], "image": OG_IMAGE,
         "datePublished": p["iso"], "dateModified": p["iso_updated"],
         "author": PERSON, "publisher": PERSON,
         "mainEntityOfPage": p["url"], "articleSection": p["category"],
@@ -186,7 +188,7 @@ def render_post(p, prev, nxt):
 </main>
 """
     title = f"{p['title']} | Ahmad Hassan"
-    return page_head(title, p["description"], p["url"], "article", ld) + body + FOOT.replace("{year}", str(datetime.now().year))
+    return page_head(title, p["summary"], p["url"], "article", ld) + body + FOOT.replace("{year}", str(datetime.now().year))
 
 
 def render_index(posts):
@@ -223,7 +225,7 @@ def render_rss(posts):
     <guid isPermaLink="true">{p['url']}</guid>
     <pubDate>{format_datetime(p['dt'])}</pubDate>
     <category>{esc(p['category'])}</category>
-    <description>{esc(p['description'])}</description>
+    <description>{esc(p['summary'])}</description>
     <content:encoded><![CDATA[{p['html']}]]></content:encoded>
   </item>""" for p in posts)
     return f"""<?xml version="1.0" encoding="UTF-8"?>

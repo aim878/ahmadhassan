@@ -4,6 +4,7 @@ slug: cutting-api-response-times-40-percent
 date: 2026-10-07
 order: 3
 category: Performance
+summary: "How Redis caching, query tuning and lazy loading cut API response times by ~40% at The Genius Group — a practical, step-by-step breakdown."
 description: A practical breakdown of the caching strategies, query optimisation, and lazy loading I used at The Genius Group to reduce API response times by roughly 40% under production load.
 ---
 
