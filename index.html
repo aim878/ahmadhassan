@@ -585,7 +585,24 @@ section { position:relative; padding:clamp(72px, 9vw, 128px) 0; overflow:hidden;
 .cv-title { font-weight:800; font-size:15px; letter-spacing:-.01em; margin-right:auto; }
 .cv-title span { display:block; font-family:var(--mono); font-size:9.5px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); margin-top:2px; }
 .cv-bar .btn-grad, .cv-bar .btn-ghost { padding:9px 16px; font-size:13px; }
-.cv-frame { flex:1; width:100%; border:0; background:#525659; }
+.cv-pages { flex:1; overflow-y:auto; overscroll-behavior:contain; padding:22px; display:flex; flex-direction:column; align-items:center; gap:18px;
+  background:var(--bg-alt); scrollbar-width:thin; scrollbar-color:rgba(129,140,248,.55) transparent; }
+.cv-pages::-webkit-scrollbar { width:6px; }
+.cv-pages::-webkit-scrollbar-track { background:transparent; }
+.cv-pages::-webkit-scrollbar-thumb { background:rgba(129,140,248,.5); border-radius:6px; }
+.cv-pages::-webkit-scrollbar-thumb:hover { background:var(--indigo-lt); }
+.cv-pages canvas { width:100%; max-width:820px; height:auto; background:#fff; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,.35); }
+.cv-status { margin:auto; color:var(--muted); font-size:14px; text-align:center; }
+.cv-status a { color:var(--indigo-lt); text-decoration:underline; }
+@media (max-width:640px) {
+  #cvModal { inset:0; margin:0; width:100%; height:100%; max-width:100%; max-height:100%; }
+  .cv-title { font-size:14px; }
+  .cv-title span { display:none; }
+  .cv-box { border-radius:0; border:0; }
+  .cv-bar { padding:10px 10px 10px 16px; }
+  .cv-bar .cv-open { display:none; }
+  .cv-pages { padding:12px; gap:12px; }
+}
 
 /* ══════════════════════════════════════════════
    BLOG
@@ -1351,14 +1368,14 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
   <div class="cv-box">
     <div class="cv-bar">
       <div class="cv-title">Ahmad Hassan — Resume<span>PDF · 2 pages</span></div>
-      <a href="/Ahmad_Hassan_Resume.pdf" target="_blank" rel="noopener" class="btn-ghost">Open in new tab</a>
+      <a href="/Ahmad_Hassan_Resume.pdf" target="_blank" rel="noopener" class="btn-ghost cv-open">Open in new tab</a>
       <a href="/Ahmad_Hassan_Resume.pdf" download="Ahmad_Hassan_Resume.pdf" class="btn-grad">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5"/></svg>
         Download
       </a>
       <button class="icon-btn" id="cvClose" aria-label="Close resume preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
-    <iframe class="cv-frame" title="Ahmad Hassan resume (PDF)"></iframe>
+    <div class="cv-pages" id="cvPages" tabindex="0" aria-label="Resume pages"><p class="cv-status">Loading resume…</p></div>
   </div>
 </dialog>
 <a id="wa" href="https://wa.me/923039625229?text=Hi%20Ahmad%2C%20I%20found%20your%20portfolio%20and%20would%20like%20to%20discuss%20a%20project." target="_blank" rel="noopener" aria-label="Chat with Ahmad on WhatsApp">
@@ -1538,18 +1555,45 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
   $('#year').textContent = new Date().getFullYear();
 
   /* ── CV PREVIEW ──────────────────────────── */
-  // Desktop: preview in a dialog. Phones can't render PDFs in an iframe, so they follow the link.
-  const cvModal = $('#cvModal'), cvFrame = cvModal.querySelector('iframe');
-  const canPreview = () => typeof cvModal.showModal === 'function' &&
-    window.matchMedia('(min-width: 768px) and (hover: hover) and (pointer: fine)').matches;
+  // Pages are drawn with PDF.js so the viewer matches the site (and works on phones).
+  const CV_URL = '/Ahmad_Hassan_Resume.pdf';
+  const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+  const cvModal = $('#cvModal'), cvPages = $('#cvPages');
+  let cvLoading = null;
+  const loadScript = src => new Promise((ok, fail) => {
+    const sc = document.createElement('script');
+    sc.src = src; sc.onload = ok; sc.onerror = fail;
+    document.head.appendChild(sc);
+  });
+  const renderCv = async () => {
+    if (!window.pdfjsLib) await loadScript(PDFJS + 'pdf.min.js');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js';
+    const pdf = await pdfjsLib.getDocument(CV_URL).promise;
+    const width = Math.min(cvPages.clientWidth - 24, 820);
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const canvases = [];
+    for (let n = 1; n <= pdf.numPages; n++) {
+      const page = await pdf.getPage(n);
+      const viewport = page.getViewport({ scale: (width / page.getViewport({ scale: 1 }).width) * ratio });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width; canvas.height = viewport.height;
+      canvas.setAttribute('aria-label', 'Resume page ' + n + ' of ' + pdf.numPages);
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      canvases.push(canvas);
+    }
+    cvPages.replaceChildren(...canvases);
+  };
   const closeCv = () => { cvModal.close(); };
   document.querySelectorAll('[data-cv]').forEach(btn => btn.addEventListener('click', e => {
-    if (!canPreview()) return;
+    if (typeof cvModal.showModal !== 'function') return; // very old browsers: just open the PDF
     e.preventDefault();
     setDrawer(false);
-    if (!cvFrame.src) cvFrame.src = '/Ahmad_Hassan_Resume.pdf#view=FitH';
     cvModal.showModal();
     document.body.classList.add('locked');
+    cvLoading = cvLoading || renderCv().catch(() => {
+      cvLoading = null;
+      cvPages.innerHTML = '<p class="cv-status">Couldn\'t load the preview. <a href="' + CV_URL + '" target="_blank" rel="noopener">Open the PDF</a> instead.</p>';
+    });
   }));
   cvModal.addEventListener('close', () => document.body.classList.remove('locked'));
   $('#cvClose').addEventListener('click', closeCv);
