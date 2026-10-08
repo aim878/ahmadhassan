@@ -1,5 +1,5 @@
 ---
-title: "Gemini 4 Argon's Benchmark Table, Read by Someone Who Ships AI Features"
+title: "Gemini 4 Argon Wins 14 of 19 Benchmarks. The Other 5 Matter More."
 slug: gemini-4-argon-benchmarks
 date: 2026-10-08
 category: AI / Models
