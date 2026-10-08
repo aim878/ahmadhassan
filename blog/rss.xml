@@ -7,6 +7,217 @@
   <description>Articles on AI/RAG systems, deployment tooling, and full-stack performance.</description>
   <language>en</language>
   <item>
+    <title>Gemini 4 Argon&#x27;s Benchmark Table, Read by Someone Who Ships AI Features</title>
+    <link>https://www.ahmadhassan.pro/blog/gemini-4-argon-benchmarks/</link>
+    <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/gemini-4-argon-benchmarks/</guid>
+    <pubDate>Thu, 08 Oct 2026 09:00:00 +0500</pubDate>
+    <category>AI / Models</category>
+    <description>Gemini 4 Argon tops 14 of 19 rows in Google&#x27;s benchmark table. What the numbers say, what they don&#x27;t, and how I&#x27;d pick a model for real work.</description>
+    <content:encoded><![CDATA[<p>Every model launch comes with a table like this one, and every table like this one is built to make a point. Google DeepMind's table for Gemini 4 Argon makes its point clearly: a column of blue cells, top to bottom.</p>
+<p>I don't train models. I build things on top of them: chatbots, agents, internal tools that real users touch. So when I read a benchmark table, I'm not asking "which model is smartest?" I'm asking "which model should I put behind this feature, and what will break?"</p>
+<p>Here's the full table, as Google published it:</p>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Benchmark</th>
+<th>Gemini 4 Argon</th>
+<th>GPT-6 Astra</th>
+<th>Claude Fable 5.1</th>
+<th>Claude Opus 5.5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Knowledge work</td>
+<td>Vals Index</td>
+<td><strong>68.9%</strong></td>
+<td>63.1%</td>
+<td>65.8%</td>
+<td>67.0%</td>
+</tr>
+<tr>
+<td></td>
+<td>AutomationBench (score)</td>
+<td><strong>51.3%</strong></td>
+<td>41.4%</td>
+<td>31.4%</td>
+<td>42.5%</td>
+</tr>
+<tr>
+<td></td>
+<td>Vals Finance Agent v2</td>
+<td><strong>65.4%</strong></td>
+<td>53.5%</td>
+<td>58.9%</td>
+<td>58.6%</td>
+</tr>
+<tr>
+<td></td>
+<td>Harvey's Legal Agent Benchmark</td>
+<td><strong>19.6%</strong></td>
+<td>5.4%</td>
+<td>6.7%</td>
+<td>3.8%</td>
+</tr>
+<tr>
+<td>Agentic coding</td>
+<td>DeepSWE v1.1</td>
+<td><strong>77.9%</strong></td>
+<td>74.1%</td>
+<td>67.4%</td>
+<td>74.2%</td>
+</tr>
+<tr>
+<td></td>
+<td>FrontierSWE v2</td>
+<td>55.0%</td>
+<td><strong>65.5%</strong></td>
+<td>56.3%</td>
+<td>62.3%</td>
+</tr>
+<tr>
+<td></td>
+<td>Vibe Code Bench</td>
+<td><strong>91.9%</strong></td>
+<td>89.6%</td>
+<td>90.3%</td>
+<td>90.3%</td>
+</tr>
+<tr>
+<td></td>
+<td>Terminal-bench 4.0</td>
+<td>57.4%</td>
+<td>58.2%</td>
+<td>57.9%</td>
+<td><strong>66.4%</strong></td>
+</tr>
+<tr>
+<td>ML engineering</td>
+<td>PostTrainBench</td>
+<td>45.3%</td>
+<td>44.3%</td>
+<td>40.2%</td>
+<td><strong>49.3%</strong></td>
+</tr>
+<tr>
+<td>Science and math</td>
+<td>Terminal-Bench Science 0.1</td>
+<td>57.6%</td>
+<td><strong>68.1%</strong></td>
+<td>52.6%</td>
+<td>63.3%</td>
+</tr>
+<tr>
+<td></td>
+<td>LABBench 2</td>
+<td><strong>88.8%</strong></td>
+<td>85.4%</td>
+<td>68.6%</td>
+<td>73.1%</td>
+</tr>
+<tr>
+<td></td>
+<td>RiemannBench</td>
+<td><strong>76.0%</strong></td>
+<td>72.0%</td>
+<td>65.6%</td>
+<td>69.6%</td>
+</tr>
+<tr>
+<td>Long context</td>
+<td>GraphWalks, up to 128k (BFS F1)</td>
+<td><strong>99.7%</strong></td>
+<td>98.7%</td>
+<td>91.4%</td>
+<td>90.6%</td>
+</tr>
+<tr>
+<td></td>
+<td>GraphWalks, 256k to 1M (BFS F1)</td>
+<td><strong>84.2%</strong></td>
+<td>71.8%</td>
+<td>65.0%</td>
+<td>66.8%</td>
+</tr>
+<tr>
+<td>Computer use</td>
+<td>Agent's Last Exam (pass rate)</td>
+<td><strong>39.5%</strong></td>
+<td>34.2%</td>
+<td>—</td>
+<td>38.2%</td>
+</tr>
+<tr>
+<td></td>
+<td>OSWorld-2.0 (offline subset, partial score)</td>
+<td>69.2%</td>
+<td><strong>72.6%</strong></td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Multimodal</td>
+<td>Chartography</td>
+<td><strong>71.6%</strong></td>
+<td>71.0%</td>
+<td>46.2%</td>
+<td>66.3%</td>
+</tr>
+<tr>
+<td></td>
+<td>LVBench</td>
+<td><strong>91.7%</strong></td>
+<td>87.5%</td>
+<td>79.7%</td>
+<td>83.7%</td>
+</tr>
+<tr>
+<td>Cybersecurity</td>
+<td>CWE-bench v1</td>
+<td><strong>68.0%</strong></td>
+<td><strong>68.0%</strong></td>
+<td>58.0%</td>
+<td>67.0%</td>
+</tr>
+</tbody>
+</table>
+<p><em>Source: Google DeepMind's Gemini 4 Argon launch materials. Methodology at deepmind.google/models/evals-methodology/gemini-4-argon. Bold marks the best score in each row.</em></p>
+<h2>Start with who made the table</h2>
+<p>These are Google's numbers, picked and run by Google, for a Google launch. That doesn't make them wrong. It does mean the benchmark list was chosen by the team with the most reason to look good on it, and the competitor scores were measured under Google's setup, not each vendor's own.</p>
+<p>So I treat a table like this as a strong hint, not a verdict. The independent leaderboards and, more importantly, your own tests come later.</p>
+<h2>Where Argon clearly pulls ahead</h2>
+<p>Gemini 4 Argon has the top score, or a share of it, in 14 of the 19 rows. Some of those wins are a point or two. A few are not, and those are the ones I'd pay attention to.</p>
+<p><strong>Very long context.</strong> At up to 128k tokens, every model in the table does fine, with all four between 90% and 99.7%. Between 256k and 1M tokens, Argon scores 84.2% and the next best is 71.8%. That's the biggest practical gap in the whole table. If your product needs to reason over a full codebase, a long contract or months of support tickets in one go, this row matters more than any coding benchmark.</p>
+<p><strong>Agents doing office work.</strong> AutomationBench (51.3% vs 42.5% for the next model) and Vals Finance Agent v2 (65.4% vs 58.9%) are both about multi-step tasks in business settings. Harvey's legal benchmark is the most striking on paper: 19.6% against single digits for everyone else. But read the absolute number too. Even the winner fails most of those tasks. "Best" and "ready to run unsupervised" are different things.</p>
+<p><strong>Charts and video.</strong> On LVBench and Chartography Argon leads, though GPT-6 Astra is close on charts (71.0% vs 71.6%).</p>
+<h2>The rows where it doesn't win are more useful</h2>
+<p>If you only look at the blue cells, you'd conclude Argon is the best choice for everything. The grey cells tell a more practical story.</p>
+<p><strong>Coding is close, and it depends on the kind of coding.</strong> On Vibe Code Bench, all four models land between 89.6% and 91.9%. That's close to a tie, and any of them will handle typical "build me this feature" work. The differences show up in the harder, more specific tests:</p>
+<ul>
+<li><strong>Claude Opus 5.5</strong> leads Terminal-bench 4.0 by a wide margin: 66.4%, against 57.4% to 58.2% for the others. That benchmark is about working in a real terminal over many steps: running commands, reading output, fixing what broke.</li>
+<li><strong>GPT-6 Astra</strong> leads FrontierSWE v2 with 65.5%, ten points above Argon's 55.0%.</li>
+<li><strong>Argon</strong> leads DeepSWE v1.1 with 77.9%.</li>
+</ul>
+<p>Three coding benchmarks, three different winners. To me that's the most honest signal in the table. "Best at coding" isn't one thing anymore.</p>
+<p><strong>Science tasks done in the terminal</strong> go to GPT-6 Astra (68.1%), and <strong>ML engineering</strong> goes to Opus 5.5 (49.3%). In both cases Argon trails.</p>
+<p><strong>Computer use is thin data.</strong> Fable 5.1 has no scores here, and Opus 5.5 has none on OSWorld. GPT-6 Astra leads OSWorld-2.0, but on an "offline subset" with "partial score", which is a narrower test than the name suggests. I wouldn't pick a model for computer-use agents from these two rows.</p>
+<h2>How I'd actually use this</h2>
+<p>When I built the RAG chatbot for REConnect, I used Claude Haiku 4.5, which isn't in this table at all. It was the right call, because the job was answering from well-chunked context quickly and cheaply, not solving the hardest benchmark in the world. Most production AI features look like that. The model only needs to be good enough at a narrow job, and fast and affordable at scale.</p>
+<p>So here's how I'd turn a table like this into decisions:</p>
+<ol>
+<li><strong>Match the benchmark to your workload.</strong> If your agent lives in a terminal, Terminal-bench tells you more than the overall win count. If you process huge documents in one pass, the 1M-token row is the one to read.</li>
+<li><strong>Run your own evals before switching.</strong> Take 50 to 100 real examples from your product, with known good answers, and run each candidate on them. That will tell you more than any launch chart.</li>
+<li><strong>Don't build for one model.</strong> Put a thin layer between your app and the model API, so swapping models is a config change, not a rewrite. With launches this frequent, the "best" model changes every few months.</li>
+<li><strong>Route by task if you can.</strong> Nothing stops you from using one model for long-document analysis and another for coding agents. The table practically argues for it.</li>
+<li><strong>Keep an eye on what the table leaves out.</strong> There's nothing here about price, speed or rate limits. For a live chat widget, those decide more than a two-point benchmark gap.</li>
+</ol>
+<h2>So, is Gemini 4 Argon the best model?</h2>
+<p>On Google's chosen benchmarks, mostly yes. It wins most rows, and in long context and business-agent tasks it wins by real margins. If those match your workload, it should be first on your list to test.</p>
+<p>But the table also shows that the top models are now close on everyday coding, and that each one has areas it's clearly best at. That's good news for anyone building products. It means you can pick by fit, cost and speed, instead of feeling locked into whichever lab has the latest launch.</p>
+<p>If you're choosing a model for a product feature and want a second opinion, <a href="/#contact">get in touch</a>. I'm happy to help set up a proper evaluation on your own data.</p>]]></content:encoded>
+  </item>
+  <item>
     <title>Building a Production RAG Chatbot with OpenAI, Chroma, and Claude</title>
     <link>https://www.ahmadhassan.pro/blog/production-rag-chatbot/</link>
     <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/production-rag-chatbot/</guid>
