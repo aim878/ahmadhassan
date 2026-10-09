@@ -530,7 +530,7 @@ section { position:relative; padding:clamp(72px, 9vw, 128px) 0; overflow:hidden;
   border-left:3px solid transparent; transition:transform .4s cubic-bezier(.22,1,.36,1), border-color .4s, box-shadow .4s;
 }
 .tl-card { position:relative; }
-.tl-logo { display:block; height:44px; width:auto; border-radius:11px; margin-bottom:14px; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+.tl-logo { display:block; height:44px; width:auto; border-radius:11px; margin-bottom:14px; box-shadow:0 0 0 1px var(--border-hi), 0 4px 14px rgba(0,0,0,.25); }
 @media (min-width:640px) { .tl-logo { position:absolute; top:24px; right:24px; margin:0; } }
 .tl-card:hover { transform:translateX(7px); border-color:var(--border-hi); border-left-color:var(--indigo); box-shadow:var(--shadow-sm); }
 .tl-date { display:inline-block; font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.17em;
@@ -1172,6 +1172,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
       <div class="tl-item rv rv-r">
         <div class="tl-node"></div>
         <div class="tl-card">
+          <img src="images/sltech-logo.webp" width="48" height="48" loading="lazy" alt="SLTech logo" class="tl-logo">
           <span class="tl-date">Sep 2025 – Present</span>
           <div class="tl-role">Full-Stack Developer</div>
           <div class="tl-org"><b><a href="https://sltech.io/" target="_blank" rel="noopener" class="ext-link">SLTech</a></b> — Real Estate &amp; AI Verticals</div>
