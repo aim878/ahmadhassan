@@ -564,6 +564,7 @@ section { position:relative; padding:clamp(72px, 9vw, 128px) 0; overflow:hidden;
 .p-more:hover { text-decoration:underline; text-underline-offset:3px; }
 .bhs-logo { display:block; width:9px; height:38px; background:currentColor; color:var(--text);
   -webkit-mask:url(images/bhs-logo.png) center/contain no-repeat; mask:url(images/bhs-logo.png) center/contain no-repeat; }
+.coolify-logo { width:28px; height:28px; display:block; }
 .p-logo { height:50px; display:flex; align-items:center; color:var(--text); }
 .p-brand { height:30px; width:auto; display:block; }
 .p-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; }
@@ -1257,7 +1258,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
       </article>
 
       <article class="pcard rv" style="--d:.11s">
-        <div class="p-head"><div class="p-icon">🔐</div><span class="p-index">/ 02</span></div>
+        <div class="p-head"><div class="p-icon"><svg class="coolify-logo" viewBox="0 0 512 512" role="img" aria-label="Coolify logo"><path d="M63.7-161.7h-90.9v272.8h90.9zm0 363.7h363.7v-90.9H63.7zm0-363.7h363.7v-90.9H63.7z" style="fill:#8c52ff;fill-opacity:.302" transform="translate(84.664 310.016)"/><path d="M48.2-177.1h-90.9V95.6h90.9zm0 363.6h363.7V95.6H48.2zm0-363.6h363.7V-268H48.2z" style="fill:#8c52ff;fill-opacity:.502" transform="translate(71.406 296.758)"/><path d="M32.8-192.6h-90.9V80.2h90.9zm0 363.7h363.7V80.2H32.8zm0-363.7h363.7v-90.9H32.8z" style="fill:#8c52ff" transform="translate(58.147 283.5)"/></svg></div><span class="p-index">/ 02</span></div>
         <div class="p-name">Coolify OAuth Shim</div>
         <div class="p-kind">DevOps · MCP</div>
         <p class="p-desc">Node/Express service bridging Claude MCP with self-hosted Coolify — enabling fully prompt-driven deployments with Supabase session persistence.</p>
