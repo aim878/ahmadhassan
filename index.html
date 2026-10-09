@@ -560,6 +560,8 @@ section { position:relative; padding:clamp(72px, 9vw, 128px) 0; overflow:hidden;
 .pcard:hover { transform:translateY(-8px); border-color:var(--border-hi); box-shadow:var(--shadow); }
 .pcard:hover::before { opacity:1; }
 .pcard > * { position:relative; }
+.p-more { align-self:flex-start; margin:-6px 0 18px; font-size:13px; font-weight:700; color:var(--indigo-lt); }
+.p-more:hover { text-decoration:underline; text-underline-offset:3px; }
 .p-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; }
 .p-icon { width:50px; height:50px; border-radius:15px; display:grid; place-items:center; font-size:22px;
   background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.2);
@@ -568,6 +570,8 @@ section { position:relative; padding:clamp(72px, 9vw, 128px) 0; overflow:hidden;
 .p-index { font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.1em; color:var(--faint); }
 .p-name { font-size:18px; font-weight:800; letter-spacing:-.02em; line-height:1.3; }
 .p-kind { font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--indigo-lt); margin-top:7px; }
+#services .p-desc a { color:var(--indigo-lt); text-decoration:underline; text-underline-offset:3px; }
+#services .p-desc { margin-bottom:0; }
 .p-desc { font-size:13.6px; color:var(--muted); line-height:1.7; margin:14px 0 20px; flex:1; }
 .p-stack { display:flex; flex-wrap:wrap; gap:6px; padding-top:18px; border-top:1px solid var(--border); }
 .p-stack span { font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.06em;
@@ -874,7 +878,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
       <p class="hero-bio rv" style="--d:.3s">
         Senior full-stack developer and team lead with <strong>10+ years</strong> shipping production-grade
         web apps and enterprise SaaS platforms used by <strong>200,000+ users</strong>.
-        Specializing in React/Next.js, Node.js APIs, AI/RAG systems, and cloud infrastructure.
+        I work remotely with US &amp; UK teams as a React/Next.js and Node.js developer, building AI chatbots (RAG), SaaS products, and AWS/Docker deployments.
       </p>
       <div class="hero-cta rv" style="--d:.36s">
         <a href="#projects" class="btn-grad">View My Work
@@ -966,7 +970,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
 
       <div class="about-copy">
         <p class="about-lead rv" style="--d:.08s">I turn complex business requirements into <u>fast, maintainable systems</u> that hold up in production.</p>
-        <p class="rv" style="--d:.14s">I'm a <strong>Senior Full-Stack Developer and Team Lead</strong> based in Lahore, Pakistan with 10+ years of experience shipping production-grade web applications across healthcare, real estate, ed-tech, and marketing verticals.</p>
+        <p class="rv" style="--d:.14s">I'm a <strong>Senior Full-Stack Developer and Team Lead</strong> based in Lahore, Pakistan, working remotely with companies in the US and UK. I have 10+ years of experience shipping production-grade web applications across healthcare, real estate, ed-tech, and marketing.</p>
         <p class="rv" style="--d:.2s">My current focus at SLTech is building AI-powered systems — including a <strong>production RAG chatbot</strong> using OpenAI embeddings and Chroma Cloud, agentic workflows, and a custom <strong>Coolify OAuth shim</strong> for prompt-driven deployments via Claude MCP.</p>
         <p class="rv" style="--d:.26s">I've led teams of 6+, delivered platforms serving 200,000+ users, and won multiple <strong>Employee of the Month</strong> awards. I believe in clean architecture, real performance gains, and software that ships.</p>
       </div>
@@ -997,6 +1001,56 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
   </div>
 </section>
 
+<!-- ═══ SERVICES ═══ -->
+<section id="services">
+  <div class="shell">
+    <div class="head-wrap head-c rv">
+      <span class="eyebrow">What I Do</span>
+      <h2 class="head-title">How I Can <em>Help</em></h2>
+      <div class="head-rule"></div>
+      <p class="head-sub">Available for remote contract and full-time work: full-stack web development, Node.js APIs, AI chatbot integration, and technical leadership.</p>
+    </div>
+    <div class="card-grid">
+      <article class="pcard rv" style="--d:0.05s">
+        <div class="p-head"><div class="p-icon">⚛️</div></div>
+        <h3 class="p-name">Full-Stack Web Development</h3>
+        <div class="p-kind">React · Next.js · TypeScript</div>
+        <p class="p-desc">Fast, SEO-friendly web apps with Next.js and React — from MVP to production, including auth, payments, and dashboards.</p>
+      </article>
+      <article class="pcard rv" style="--d:0.11s">
+        <div class="p-head"><div class="p-icon">🛠️</div></div>
+        <h3 class="p-name">Node.js API &amp; Backend</h3>
+        <div class="p-kind">Node.js · Express · PostgreSQL</div>
+        <p class="p-desc">REST and GraphQL APIs, multi-tenant SaaS backends, and database design that holds up under real traffic.</p>
+      </article>
+      <article class="pcard rv" style="--d:0.17s">
+        <div class="p-head"><div class="p-icon">🤖</div></div>
+        <h3 class="p-name">AI Chatbots &amp; RAG</h3>
+        <div class="p-kind">OpenAI · Claude · LangChain</div>
+        <p class="p-desc">Production AI chatbots and assistants grounded in your own data, with tools, guardrails, and feedback loops. <a href="/blog/production-rag-chatbot/">See an example</a>.</p>
+      </article>
+      <article class="pcard rv" style="--d:0.05s">
+        <div class="p-head"><div class="p-icon">☁️</div></div>
+        <h3 class="p-name">DevOps &amp; Deployment</h3>
+        <div class="p-kind">AWS · Docker · CI/CD</div>
+        <p class="p-desc">Docker, GitHub Actions, AWS and Coolify setups that make deployments routine instead of risky.</p>
+      </article>
+      <article class="pcard rv" style="--d:0.11s">
+        <div class="p-head"><div class="p-icon">⚡</div></div>
+        <h3 class="p-name">Performance &amp; Scaling</h3>
+        <div class="p-kind">Redis · Query tuning</div>
+        <p class="p-desc">Slow API or page? I find the bottleneck and fix it — caching, indexes, and lazy loading. <a href="/blog/cutting-api-response-times-40-percent/">How I cut response times ~40%</a>.</p>
+      </article>
+      <article class="pcard rv" style="--d:0.17s">
+        <div class="p-head"><div class="p-icon">👥</div></div>
+        <h3 class="p-name">Team Lead &amp; Remote Developer</h3>
+        <div class="p-kind">US &amp; UK teams</div>
+        <p class="p-desc">Join your team as a senior remote developer or tech lead — code reviews, mentoring, and reliable delivery across time zones.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ SKILLS ═══ -->
 <section id="skills" class="band">
   <div class="orb orb-i orb-1"></div>
@@ -1005,7 +1059,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
       <span class="eyebrow">Expertise</span>
       <h2 class="head-title">Core Technical <em>Skills</em></h2>
       <div class="head-rule"></div>
-      <p class="head-sub">Seven years across the stack — from React interfaces and Node APIs to vector databases, container orchestration, and the teams that ship them.</p>
+      <p class="head-sub">10+ years across the stack — from React interfaces and Node APIs to vector databases, container orchestration, and the teams that ship them.</p>
     </div>
 
     <div class="skill-grid">
@@ -1193,7 +1247,8 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
         <div class="p-head"><div class="p-icon">🤖</div><span class="p-index">/ 01</span></div>
         <div class="p-name"><a href="https://reconnectapp.com/" target="_blank" rel="noopener" class="ext-link">REConnect RAG Chatbot</a></div>
         <div class="p-kind">AI · Agentic Systems</div>
-        <p class="p-desc">Production knowledge-base chatbot with agentic capabilities — MLS lookups, role-aware tone, live account data, and guided sign-up flows.</p>
+        <p class="p-desc">Production AI chatbot for a US real estate data platform, built with RAG and agentic tools — MLS lookups, role-aware tone, live account data, and guided sign-up flows.</p>
+        <a href="/blog/production-rag-chatbot/" class="p-more">Read how I built this RAG chatbot →</a>
         <div class="p-stack"><span>OpenAI</span><span>Chroma Cloud</span><span>Claude Haiku</span><span>Node.js</span><span>Next.js</span></div>
       </article>
 
@@ -1202,6 +1257,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
         <div class="p-name">Coolify OAuth Shim</div>
         <div class="p-kind">DevOps · MCP</div>
         <p class="p-desc">Node/Express service bridging Claude MCP with self-hosted Coolify — enabling fully prompt-driven deployments with Supabase session persistence.</p>
+        <a href="/blog/claude-mcp-coolify-oauth-shim/" class="p-more">Read the MCP + Coolify write-up →</a>
         <div class="p-stack"><span>Node.js</span><span>Express</span><span>Coolify</span><span>Supabase</span><span>MCP</span></div>
       </article>
 
@@ -1209,7 +1265,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
         <div class="p-head"><div class="p-icon">🏠</div><span class="p-index">/ 03</span></div>
         <div class="p-name"><a href="https://www.bhsusa.com/blog" target="_blank" rel="noopener" class="ext-link">BHS Custom Blocks</a></div>
         <div class="p-kind">WordPress · Real Estate</div>
-        <p class="p-desc">WordPress Gutenberg plugin with 70+ custom blocks for Brown Harris Stevens — agent profiles, listings, hero banners, and market reports.</p>
+        <p class="p-desc">WordPress Gutenberg plugin with 70+ custom blocks for Brown Harris Stevens, a NYC real estate brokerage — agent profiles, listings, hero banners, and market reports.</p>
         <div class="p-stack"><span>WordPress</span><span>Gutenberg</span><span>React</span><span>PHP</span></div>
       </article>
 
@@ -1233,7 +1289,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
         <div class="p-head"><div class="p-icon">🏥</div><span class="p-index">/ 06</span></div>
         <div class="p-name"><a href="https://www.thecaremd.com/" target="_blank" rel="noopener" class="ext-link">TheCareMD</a></div>
         <div class="p-kind">Healthcare · Telemedicine</div>
-        <p class="p-desc">US telemedicine platform connecting patients with licensed doctors for virtual consultations, online prescriptions, and lab referrals.</p>
+        <p class="p-desc">US healthcare SaaS (telemedicine) connecting patients with licensed doctors for virtual consultations, online prescriptions, and lab referrals.</p>
         <div class="p-stack"><span>Node.js</span><span>React</span><span>MySQL</span><span>Laravel</span></div>
       </article>
     </div>
@@ -1357,7 +1413,7 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
       </div>
     </div>
     <div class="foot-links">
-      <a href="#about">About</a><a href="#skills">Skills</a><a href="#experience">Experience</a>
+      <a href="#about">About</a><a href="#services">Services</a><a href="#skills">Skills</a><a href="#experience">Experience</a>
       <a href="#projects">Projects</a><a href="#blog">Blog</a><a href="#contact">Contact</a>
     </div>
     <div class="foot-note">© <span id="year">2026</span> <b>Ahmad Hassan</b> — Designed &amp; built with care in Lahore</div>
