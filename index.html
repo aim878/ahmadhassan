@@ -32,33 +32,172 @@
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Person",
-      "name": "Ahmad Hassan",
+      "@type": "ProfilePage",
+      "@id": "https://www.ahmadhassan.pro/#profilepage",
       "url": "https://www.ahmadhassan.pro/",
-      "image": "https://www.ahmadhassan.pro/images/ah.webp",
-      "jobTitle": "Senior Full-Stack Developer",
+      "name": "Ahmad Hassan | Senior Full-Stack Developer & Team Lead",
+      "isPartOf": {
+        "@id": "https://www.ahmadhassan.pro/#website"
+      },
+      "mainEntity": {
+        "@id": "https://www.ahmadhassan.pro/#person"
+      },
+      "about": {
+        "@id": "https://www.ahmadhassan.pro/#person"
+      },
+      "dateCreated": "2026-10-06T00:00:00+05:00",
+      "dateModified": "2026-10-20T00:00:00+05:00",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://www.ahmadhassan.pro/#person",
+      "name": "Ahmad Hassan",
+      "givenName": "Ahmad",
+      "familyName": "Hassan",
+      "url": "https://www.ahmadhassan.pro/",
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://www.ahmadhassan.pro/images/ah.webp",
+        "width": 864,
+        "height": 977,
+        "caption": "Ahmad Hassan, Senior Full-Stack Developer"
+      },
+      "jobTitle": "Senior Full-Stack Developer & Team Lead",
+      "description": "Ahmad Hassan is a senior full-stack developer and team lead in Lahore, Pakistan, with 10+ years building web apps, SaaS platforms and AI/RAG chatbots for US and UK companies.",
       "email": "mailto:aimhassan878@gmail.com",
+      "telephone": "+923039625229",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Lahore",
+        "addressRegion": "Punjab",
+        "addressCountry": "PK"
+      },
+      "nationality": {
+        "@type": "Country",
+        "name": "Pakistan"
+      },
+      "worksFor": {
+        "@type": "Organization",
+        "name": "SLTech",
+        "url": "https://sltech.io/"
+      },
+      "alumniOf": {
+        "@type": "CollegeOrUniversity",
+        "name": "Qarshi University",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Lahore",
+          "addressCountry": "PK"
+        }
+      },
+      "hasCredential": {
+        "@type": "EducationalOccupationalCredential",
+        "credentialCategory": "degree",
+        "name": "B.S. Computer Science",
+        "recognizedBy": {
+          "@type": "CollegeOrUniversity",
+          "name": "Qarshi University"
+        }
+      },
+      "hasOccupation": {
+        "@type": "Occupation",
+        "name": "Senior Full-Stack Developer",
+        "occupationLocation": {
+          "@type": "Country",
+          "name": "Pakistan"
+        },
+        "description": "Remote full-stack development and technical leadership for US and UK companies.",
+        "skills": "React, Next.js, TypeScript, Node.js, Express.js, PostgreSQL, MySQL, Redis, PHP, Laravel, WordPress, RAG, LangChain, OpenAI API, Docker, AWS, CI/CD"
+      },
       "knowsAbout": [
         "Full-Stack Development",
         "React",
         "Next.js",
+        "TypeScript",
         "Node.js",
-        "AI/RAG Systems",
-        "Enterprise SaaS",
-        "Cloud Infrastructure"
+        "Express.js",
+        "REST APIs",
+        "GraphQL",
+        "PostgreSQL",
+        "MySQL",
+        "MongoDB",
+        "Redis",
+        "PHP",
+        "Laravel",
+        "WordPress Gutenberg",
+        "Retrieval-Augmented Generation (RAG)",
+        "AI Chatbots",
+        "LangChain",
+        "OpenAI API",
+        "Model Context Protocol (MCP)",
+        "Multi-tenant SaaS",
+        "Docker",
+        "AWS",
+        "CI/CD",
+        "Performance Optimization",
+        "Technical Leadership"
+      ],
+      "award": [
+        "GitHub Arctic Code Vault Contributor",
+        "Employee of the Month (multiple awards)"
       ],
       "sameAs": [
         "https://www.linkedin.com/in/aimhassan",
         "https://github.com/aim878",
         "https://stackoverflow.com/users/2775435"
       ],
-      "@id": "https://www.ahmadhassan.pro/#person"
+      "makesOffer": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Full-Stack Web Development"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Node.js API & Backend Development"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "AI Chatbot & RAG Development"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "DevOps & Deployment"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Performance Optimization"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Remote Team Lead / Senior Developer"
+          }
+        }
+      ]
     },
     {
       "@type": "WebSite",
       "@id": "https://www.ahmadhassan.pro/#website",
       "url": "https://www.ahmadhassan.pro/",
       "name": "Ahmad Hassan",
+      "alternateName": "Ahmad Hassan Portfolio",
       "description": "Portfolio and blog of Ahmad Hassan, Senior Full-Stack Developer & Team Lead.",
       "inLanguage": "en",
       "publisher": {
