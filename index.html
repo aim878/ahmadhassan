@@ -555,6 +555,9 @@ section { position:relative; padding:clamp(72px, 9vw, 128px) 0; overflow:hidden;
 .orbit-chip.a { left:-32px; top:24%; animation:bob 5s ease-in-out infinite; }
 .orbit-chip.b { right:-26px; bottom:26%; animation:bob 6.5s ease-in-out infinite .8s; }
 .orbit-chip.b i { background:var(--violet); box-shadow:0 0 9px var(--violet); }
+.orbit-chip.c { left:-24px; top:58%; animation:bob 5.8s ease-in-out infinite .4s; }
+.orbit-chip.c i { background:var(--indigo-lt); box-shadow:0 0 9px var(--indigo-lt); }
+.orbit-chip.d { right:-30px; top:34%; animation:bob 6.2s ease-in-out infinite 1.2s; }
 @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-13px)} }
 
 /* ══════════════════════════════════════════════
@@ -922,6 +925,8 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
   .years-badge b { font-size:26px; }
   .orbit-chip.a { left:-8px; }
   .orbit-chip.b { right:-6px; }
+  .orbit-chip.c { left:-8px; }
+  .orbit-chip.d { right:-6px; }
   #wa { right:14px; bottom:14px; }
   #toast { right:14px; bottom:80px; }
   #totop { right:19px; bottom:80px; }
@@ -1068,6 +1073,8 @@ footer .orb-1 { bottom:-260px; left:50%; transform:translateX(-50%); width:760px
         <div class="years-badge"><b>10+</b><span>Years</span></div>
         <div class="orbit-chip a"><i></i>Next.js · Node</div>
         <div class="orbit-chip b"><i></i>AI / RAG Systems</div>
+        <div class="orbit-chip c"><i></i>React · TypeScript</div>
+        <div class="orbit-chip d"><i></i>AWS · Docker</div>
 
         <div class="photo">
           <img src="images/ah.webp" width="864" height="977" fetchpriority="high" alt="Ahmad Hassan, Senior Full-Stack Developer">
