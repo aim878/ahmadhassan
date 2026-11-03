@@ -7,6 +7,191 @@
   <description>Articles on AI/RAG systems, deployment tooling, and full-stack performance.</description>
   <language>en</language>
   <item>
+    <title>One Agent Builds, One Agent Tests: How I Used Claude Code Subagents to Build and QA an AI Proof of Concept</title>
+    <link>https://www.ahmadhassan.pro/blog/claude-code-subagents-builder-tester/</link>
+    <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/claude-code-subagents-builder-tester/</guid>
+    <pubDate>Wed, 04 Nov 2026 09:00:00 +0500</pubDate>
+    <category>AI / Developer Tools</category>
+    <description>How I used two Claude Code subagents, a builder and a tester, to build and QA an H5P + AI speaking demo in Moodle. Setup, prompts, bugs caught, lessons.</description>
+    <content:encoded><![CDATA[<p>Ask one AI agent to write code and then check its own work, and you'll usually get a confident "all done" back. It's like asking a student to grade their own exam.</p>
+<p>I hit this while building a proof of concept for a client: AI speaking features added to existing H5P activities in Moodle. So I split the work in two. One Claude Code subagent builds. A second subagent tests, and it isn't allowed to fix anything. A task only counts as done when the tester passes it.</p>
+<p>This article shows exactly how I set that up: the plan, the two agent files, the loop between them, and the real bugs the loop caught.</p>
+<h2>The Project: AI Speaking Practice Inside Moodle</h2>
+<p>The client runs an English programme on Moodle, and their content is already built in H5P, the interactive content format Moodle supports out of the box. They wanted to see three things:</p>
+<ul>
+<li>Students answering existing activities by speaking instead of typing</li>
+<li>A spoken conversation with an AI tutor</li>
+<li>Scores still landing in the Moodle gradebook</li>
+</ul>
+<p>The key constraint was "upgrade what exists, don't rebuild it." That shaped everything that followed.</p>
+<p>The POC ended up with these parts:</p>
+<ul>
+<li><strong>Moodle 4.5 in Docker</strong>, with a sample course, a test student and three ordinary "before" activities (Fill in the Blanks, Multiple Choice, Interactive Video)</li>
+<li><strong>H5P.VoiceLayer</strong>, a custom H5P content type that wraps the existing Fill in the Blanks activity and adds a mic button to each blank using the browser's Web Speech API</li>
+<li><strong>H5P.AITutor</strong>, a push-to-talk chat in which the tutor replies out loud</li>
+<li><strong>A small Node/Express AI service</strong> that calls the Claude API with a fast, low-cost Haiku model, so the API key never reaches the browser</li>
+</ul>
+<h2>Step 1: Start With a Plan That Has a "Done When" Column</h2>
+<p>Before creating any agents, I wrote a one-page plan as a Markdown file in the project. The most useful part turned out to be the timeline table, because every task has a "Done when" result:</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Done when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Moodle in Docker + "before" activities</td>
+<td>Moodle runs, activities open, mic prompt appears</td>
+</tr>
+<tr>
+<td>Voice Layer</td>
+<td>Speaking an answer fills the blank and scores it</td>
+</tr>
+<tr>
+<td>AI Tutor</td>
+<td>A 3-turn spoken conversation works</td>
+</tr>
+<tr>
+<td>Pronunciation + points</td>
+<td>Wrong words are flagged with a tip</td>
+</tr>
+<tr>
+<td>xAPI + gradebook</td>
+<td>A score appears for a test student</td>
+</tr>
+</tbody>
+</table>
+<p>That column became the tester's pass mark. Without it, "test this" is vague. With it, the tester has a yes-or-no question to answer.</p>
+<p>The plan also lists what to cut if time runs short, risks to check early (for example, "does the mic even work inside Moodle's H5P iframe?"), and a checklist at the end.</p>
+<h2>Step 2: Write a Workflow File</h2>
+<p>Next I added <code>workflow.md</code>, which describes how the two agents work together:</p>
+<pre><code class="language-text">Task from plan → Builder builds it → handoff note → Tester tests it
+     ↑                                                   |
+     └──────────── bug report (FAIL) ────────────────────┤
+                                                         ↓ PASS
+                                          Tick the checklist, next task
+</code></pre>
+<p>The rules are simple:</p>
+<ol>
+<li>Pick the next task from the plan.</li>
+<li>The builder builds it and writes a handoff note.</li>
+<li>The tester tests it against the "Done when" column.</li>
+<li><strong>PASS:</strong> tick the checklist and move on.</li>
+<li><strong>FAIL:</strong> the tester writes a bug report, and the builder fixes only what's in it.</li>
+<li><strong>Three failures on one task:</strong> stop and decide whether to cut it.</li>
+</ol>
+<p>The third-failure rule keeps the loop from running forever on something that isn't worth the time.</p>
+<h2>Step 3: Create the Two Claude Code Subagents</h2>
+<p>Claude Code subagents are Markdown files in <code>.claude/agents/</code>. Each one has a short header (name, description, allowed tools) followed by its instructions. Claude Code reads the description to decide when to use the agent, and the tool list controls what the agent can actually do.</p>
+<h3>The builder agent</h3>
+<pre><code class="language-yaml">---
+name: poc-builder
+description: Builds one task of the H5P + AI POC ... and returns a
+  handoff note for poc-tester. Use when a task from the plan needs to
+  be created or a tester bug report needs fixing.
+tools: Read, Write, Edit, Bash, Glob, Grep
+---
+</code></pre>
+<p>Its main rules:</p>
+<ul>
+<li>Build only the task you were given, in the plan's order.</li>
+<li>Keep the API key in <code>.env</code>. Never put it in browser code, logs or commits, and provide a <code>.env.example</code> with placeholders only.</li>
+<li>Use a Haiku model with a short <code>max_tokens</code> and a strict tutor prompt.</li>
+<li>Handle failures with a clear message: denied mic, unsupported browser, AI errors.</li>
+<li>Never mark a task done. Only the tester can do that.</li>
+</ul>
+<p>Every run ends with the same handoff note:</p>
+<pre><code class="language-text">Task:         &lt;task name from the timeline&gt;
+What changed: &lt;files added or edited&gt;
+How to run:   &lt;commands, URLs, logins&gt;
+What to test: &lt;the &quot;Done when&quot; result&gt;
+Known gaps:   &lt;anything not finished or not working yet&gt;
+</code></pre>
+<p>The "Known gaps" line matters more than it looks. It gives the builder a place to admit what's unfinished instead of glossing over it.</p>
+<h3>The tester agent</h3>
+<pre><code class="language-yaml">---
+name: poc-tester
+description: Tests one task of the H5P + AI POC against its &quot;Done when&quot;
+  result, using the handoff note from poc-builder, and returns a PASS or
+  FAIL report. Never fixes code.
+tools: Read, Edit, Bash, Glob, Grep, &lt;browser tools&gt;
+---
+</code></pre>
+<p>The tester gets browser tools (navigate, click, read the page, read console messages and network requests, run JavaScript) so it can use the app the way a person would. It does not get <code>Write</code>.</p>
+<p>Its main rules:</p>
+<ul>
+<li>Follow the handoff note's "How to run" steps exactly as written.</li>
+<li>Check the console and network tab, and call the AI service directly with <code>curl</code>, including an error case.</li>
+<li>Check that no API key appears in page source or network responses.</li>
+<li>Never fix code. The only file it may edit is the plan, and only to tick a checklist item.</li>
+<li>Give a clear PASS or FAIL. No "mostly works".</li>
+</ul>
+<p>Its report format:</p>
+<pre><code class="language-text">Task / Result / Browser / Steps / Expected / Actual /
+Evidence / Needs manual check / Other issues
+</code></pre>
+<h3>Why the separation works</h3>
+<p>The builder wants to finish. The tester has no stake in the code, so it has nothing to defend. Because it can't patch problems quietly, every problem it finds shows up in a report where I can see it.</p>
+<h2>Step 4: Run the Loop, One Task at a Time</h2>
+<p>Running a task is a single instruction to Claude Code:</p>
+<blockquote>
+<p>Use poc-builder to build task 1, then pass its handoff note to poc-tester.</p>
+</blockquote>
+<p>The builder produced the Docker setup, the install scripts and the H5P packages. The tester logged in, opened every activity, checked the console, and either passed it or sent back a report.</p>
+<h3>The QA problem: you can't speak to an automated browser</h3>
+<p>Speech is the core of this demo, and an automated browser has no voice. My workaround was to have the builder add small test hooks to each H5P library, for example <code>simulateTranscript(blankIndex, text)</code> and <code>simulateError(code)</code>. The tester calls these from the page to feed in a "heard" phrase, or an error such as permission denied, and then checks what the activity does.</p>
+<p>The tester's report says plainly when speech was simulated, and anything that still needs a real human with a real microphone goes under "Needs manual check". That kept the results honest. A pass meant "the logic works with simulated speech", not "the mic definitely works in Chrome".</p>
+<p>For the AI tutor, the service has a mock mode (<code>AI_MOCK=1</code>) that returns canned replies, so the chat flow could be tested end to end without spending API credit.</p>
+<h2>What the Loop Caught</h2>
+<p>Some problems were found by the builder itself, and some only showed up in the tester's reports. Both are worth knowing.</p>
+<p><strong>1. Escaped text on screen (builder found it, tester confirmed it).</strong> Moodle's H5P stores text HTML-encoded, so messages showed <code>&amp;quot;</code> instead of quote marks. The builder spotted this, decoded the strings, and listed the fix in its handoff note. The tester then checked every error message for leftover entities like <code>&amp;quot;</code> and found none.</p>
+<p><strong>2. Scores that never reached the gradebook (builder found it, tester confirmed it).</strong> The Voice Layer listened for scoring events "bubbling up" from the wrapped activity, which is the usual pattern. But <code>H5P.newRunnable</code> replaces the wrapper's prototype, so the events never arrived and no grade was recorded. The builder changed the library to listen on the inner activity directly. The tester didn't stop at the page: it checked that the grade actually appeared in Moodle's gradebook.</p>
+<p><strong>3. Small issues in the "Other issues" list (tester found them).</strong> Each tester report ended with problems outside the task being tested. For example: the voice activity's intro still said "Type the missing word", there was no Retry button after a full score, every Check created a new attempt, and the Interactive Video grade was empty. None of these failed the task, but they're exactly the things a client notices in a demo.</p>
+<p><strong>4. A billing problem, not a code problem.</strong> When the real API key went in, the tutor returned errors. Because the AI service logs the error type and status instead of failing silently, the upstream message was clear: the account had no credit. That was a billing fix, not a debugging session.</p>
+<p>Having the builder list its fixes in the handoff note mattered here. It told the tester exactly what to re-check.</p>
+<h2>Lessons Learned</h2>
+<h3>Put guardrails in the agent files, not just in your head</h3>
+<p>Early on, while Docker was low on memory, Claude suggested a broad "stop every running container" command as a quick fix. My Docker Desktop runs several other client projects, so that would have been bad. I added a rule to both agent files: only touch this project's compose project (<code>h5m-poc</code>), never stop or prune anything else, and run compose only from the project folder.</p>
+<p>If a rule matters, write it where the agent reads it every time it runs.</p>
+<h3>Use a skill to check API details</h3>
+<p>For the Claude API call, I used Claude Code's built-in <code>claude-api</code> skill to confirm the right model ID and request settings for Haiku, instead of relying on memory. API details change, so checking takes a minute and saves a confusing 400 error later.</p>
+<h3>Keep secrets out of the conversation</h3>
+<p>The test logins were generated into <code>.env</code>, which is git-ignored, and the agents point to that file instead of printing passwords. I added the real API key myself. The agents never handled it.</p>
+<h3>Make "manual check" a normal result</h3>
+<p>Some things an agent can't verify, like a real microphone permission prompt. Giving the tester a standard place to say so beats a fake pass.</p>
+<h3>Small, repeatable setup</h3>
+<p>Because the builder scripted the whole install, moving to another machine means copying the folder (without <code>.env</code>), creating <code>.env</code> from <code>.env.example</code>, and running:</p>
+<pre><code class="language-bash">docker compose up -d --build
+</code></pre>
+<p>Moodle, the course, the test student, both custom H5P libraries and all the activities install themselves on first start.</p>
+<h2>How to Try This Pattern on Your Own Project</h2>
+<ol>
+<li><strong>Write a plan with a "Done when" column.</strong> One line per task, in plain words.</li>
+<li><strong>Add a workflow file</strong> describing the loop, the handoff note and the bug report.</li>
+<li><strong>Create two files in <code>.claude/agents/</code>:</strong> a builder with write tools, and a tester without them.</li>
+<li><strong>Give the tester real eyes:</strong> browser tools, <code>curl</code>, logs.</li>
+<li><strong>Add test hooks</strong> for anything an automated tester can't do physically, such as speech, camera or hardware.</li>
+<li><strong>Put your safety rules in both agent files:</strong> secrets, shared infrastructure, scope.</li>
+<li><strong>Run one task at a time and read the reports.</strong> They're short, and they tell you what's actually true.</li>
+</ol>
+<h2>Conclusion</h2>
+<p>Splitting the work between a builder subagent and a tester subagent didn't make the AI smarter. It made the process more honest. The builder has to hand over a note saying what changed and what's still missing. The tester has a clear pass mark and can't paper over problems. I review short reports instead of guessing.</p>
+<p>For this POC, that pattern produced a working Moodle demo with voice-answered H5P activities, an AI tutor and gradebook scores. It also left a clear list of what still needs a human to check. If you're using Claude Code for anything bigger than a single file, try the builder and tester split on your next feature.</p>
+<h2>FAQs</h2>
+<h3>What are Claude Code subagents?</h3>
+<p>They're specialised assistants defined as Markdown files in <code>.claude/agents/</code>. Each one has its own instructions and its own list of allowed tools, and Claude Code can hand tasks to them.</p>
+<h3>Why not let one agent build and test?</h3>
+<p>An agent that checks its own work tends to confirm it. A separate tester that can't edit code reports problems instead of quietly patching them, so you see what really happened.</p>
+<h3>How do you QA voice features with an AI agent?</h3>
+<p>Add test hooks to the code that simulate a speech result or an error, have the tester call them, and list real-microphone checks as manual steps.</p>
+<h3>Do subagents need special setup?</h3>
+<p>No. Create the <code>.claude/agents/</code> folder in your project and add one Markdown file per agent. If a new agent doesn't show up, start a new Claude Code session so it's loaded.</p>
+<h3>Is H5P required to add AI features to Moodle?</h3>
+<p>No. Moodle runs fine without H5P, and you could build the same features as a Moodle plugin. H5P made sense here because the client's existing content was already H5P.</p>]]></content:encoded>
+  </item>
+  <item>
     <title>Building 70+ Custom Gutenberg Blocks for a NYC Real Estate Brokerage</title>
     <link>https://www.ahmadhassan.pro/blog/bhs-custom-gutenberg-blocks/</link>
     <guid isPermaLink="true">https://www.ahmadhassan.pro/blog/bhs-custom-gutenberg-blocks/</guid>
